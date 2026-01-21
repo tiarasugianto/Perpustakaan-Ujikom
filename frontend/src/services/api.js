@@ -8,4 +8,7 @@ const api = axios.create({
   },
 });
 
+// ambil semua buku
+export const getBooks = () => api.get("/books");
+
 export default api;
