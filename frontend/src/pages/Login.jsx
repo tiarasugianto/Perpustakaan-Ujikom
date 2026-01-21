@@ -20,17 +20,18 @@ function Login() {
         {
           headers: {
             Accept: "application/json",
+            "Content-Type": "application/json",
           },
         }
       );
 
-      // simpan token
+      // simpan token & user
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("user", JSON.stringify(response.data.user));
 
-      alert("Login berhasil!");
+      alert("Login berhasil");
     } catch (err) {
-      setError("Login gagal, cek email atau password");
+      setError("Login gagal. Email atau password salah.");
     }
   };
 
@@ -41,27 +42,31 @@ function Login() {
       {error && <p style={{ color: "red" }}>{error}</p>}
 
       <form onSubmit={handleLogin}>
-        <div>
+        <div style={{ marginBottom: "10px" }}>
           <input
             type="email"
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            style={{ width: "100%", padding: "8px" }}
           />
         </div>
 
-        <div>
+        <div style={{ marginBottom: "10px" }}>
           <input
             type="password"
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            style={{ width: "100%", padding: "8px" }}
           />
         </div>
 
-        <button type="submit">Login</button>
+        <button type="submit" style={{ width: "100%", padding: "8px" }}>
+          Login
+        </button>
       </form>
     </div>
   );
