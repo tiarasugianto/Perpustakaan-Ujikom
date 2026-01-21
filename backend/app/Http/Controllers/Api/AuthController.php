@@ -12,10 +12,10 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $request->validate([
-            'name' => 'required',
+            'name' => 'required|string',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:6',
-            'role' => 'required'
+            'role' => 'required|in:admin,user',
         ]);
 
         $user = User::create([
@@ -26,26 +26,39 @@ class AuthController extends Controller
         ]);
 
         return response()->json([
-            'message' => 'Register berhasil'
-        ]);
+            'message' => 'Register berhasil',
+        ], 201);
     }
 
     public function login(Request $request)
     {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
         $user = User::where('email', $request->email)->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json([
-                'message' => 'Login gagal'
+                'message' => 'Email atau password salah',
             ], 401);
         }
 
-        $token = $user->createToken('token')->plainTextToken;
+        // hapus token lama (opsional tapi rapi)
+        $user->tokens()->delete();
+
+        $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
+            'message' => 'Login berhasil',
             'token' => $token,
-            'role' => $user->role,
-            'name' => $user->name
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role,
+            ],
         ]);
     }
 }
