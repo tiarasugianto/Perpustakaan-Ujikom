@@ -1,3 +1,5 @@
+import Books from "./Books";
+
 export default function Dashboard() {
   const user = JSON.parse(localStorage.getItem("user"));
 
@@ -10,6 +12,8 @@ export default function Dashboard() {
           Selamat datang, <strong>{user.name}</strong> ({user.role})
         </p>
       )}
+
+      <Books />
     </div>
   );
 }
