@@ -1,10 +1,10 @@
 body {
-  background: #f4f6f8;
-  font-family: Arial, sans-serif;
+  background: #fce4ec;
+  font-family: "Segoe UI", Arial, sans-serif;
 }
 
 .container {
-  max-width: 1000px;
+  max-width: 1100px;
   margin: auto;
   padding: 20px;
 }
@@ -12,79 +12,100 @@ body {
 .title {
   text-align: center;
   margin-bottom: 20px;
+  color: #f06292;
 }
 
+/* CARD */
 .card {
   background: white;
   padding: 20px;
-  border-radius: 8px;
+  border-radius: 16px;
   margin-bottom: 20px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 8px 25px rgba(240, 98, 146, 0.25);
 }
 
+/* FORM */
 .form {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+  gap: 12px;
 }
 
 .form input {
-  padding: 8px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #f8bbd0;
+  background: #fdf2f6;
 }
 
+.form input:focus {
+  outline: none;
+  border-color: #f06292;
+}
+
+/* TABLE */
 table {
   width: 100%;
   border-collapse: collapse;
 }
 
-table th {
-  background: #2c3e50;
-  color: white;
+table thead {
+  background: #f8bbd0;
 }
 
-table th, table td {
-  padding: 10px;
+table th {
+  color: #880e4f;
+  font-weight: bold;
+}
+
+table th,
+table td {
+  padding: 12px;
   text-align: center;
-  border: 1px solid #ddd;
+  border-bottom: 1px solid #f3c1d3;
+}
+
+table tbody tr:hover {
+  background: #fdf2f6;
 }
 
 .empty {
   text-align: center;
   padding: 20px;
-  color: gray;
+  color: #ad1457;
 }
 
+/* BUTTON */
 .btn {
-  padding: 6px 10px;
+  padding: 6px 12px;
   border: none;
-  border-radius: 4px;
+  border-radius: 10px;
   cursor: pointer;
   margin: 2px;
+  font-size: 13px;
 }
 
 .primary {
-  background: #3498db;
+  background: #f06292;
   color: white;
 }
 
 .success {
-  background: #2ecc71;
+  background: #f48fb1;
   color: white;
 }
 
 .warning {
-  background: #f1c40f;
-  color: black;
+  background: #f8bbd0;
+  color: #880e4f;
 }
 
 .danger {
-  background: #e74c3c;
+  background: #ec407a;
   color: white;
 }
 
 .btn:disabled {
-  background: #bdc3c7;
+  background: #f3c1d3;
   cursor: not-allowed;
 }
