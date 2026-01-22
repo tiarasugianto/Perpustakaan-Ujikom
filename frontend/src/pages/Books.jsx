@@ -1,8 +1,14 @@
 import { useEffect, useState } from "react";
-import { getBooks, createBook } from "../services/api";
+import {
+  getBooks,
+  createBook,
+  updateBook,
+  deleteBook,
+} from "../services/api";
 
 export default function Books() {
   const [books, setBooks] = useState([]);
+  const [editId, setEditId] = useState(null);
 
   const [form, setForm] = useState({
     judul: "",
@@ -13,9 +19,7 @@ export default function Books() {
   });
 
   const loadBooks = () => {
-    getBooks()
-      .then((res) => setBooks(res.data))
-      .catch((err) => console.error(err));
+    getBooks().then((res) => setBooks(res.data));
   };
 
   useEffect(() => {
@@ -23,82 +27,61 @@ export default function Books() {
   }, []);
 
   const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    createBook(form)
-      .then(() => {
+    if (editId) {
+      updateBook(editId, form).then(() => {
+        setEditId(null);
+        resetForm();
         loadBooks();
-        setForm({
-          judul: "",
-          penulis: "",
-          penerbit: "",
-          tahun: "",
-          stok: "",
-        });
-      })
-      .catch((err) => console.error(err));
+      });
+    } else {
+      createBook(form).then(() => {
+        resetForm();
+        loadBooks();
+      });
+    }
+  };
+
+  const handleEdit = (book) => {
+    setEditId(book.id);
+    setForm(book);
+  };
+
+  const handleDelete = (id) => {
+    if (confirm("Yakin hapus buku ini?")) {
+      deleteBook(id).then(() => loadBooks());
+    }
+  };
+
+  const resetForm = () => {
+    setForm({
+      judul: "",
+      penulis: "",
+      penerbit: "",
+      tahun: "",
+      stok: "",
+    });
   };
 
   return (
     <div style={{ marginTop: 20 }}>
-      <h2>Tambah Buku</h2>
+      <h2>{editId ? "Edit Buku" : "Tambah Buku"}</h2>
 
       <form onSubmit={handleSubmit}>
-        <input
-          name="judul"
-          placeholder="Judul"
-          value={form.judul}
-          onChange={handleChange}
-          required
-        />
-        <br />
+        <input name="judul" placeholder="Judul" value={form.judul} onChange={handleChange} required /><br />
+        <input name="penulis" placeholder="Penulis" value={form.penulis} onChange={handleChange} required /><br />
+        <input name="penerbit" placeholder="Penerbit" value={form.penerbit} onChange={handleChange} required /><br />
+        <input name="tahun" type="number" placeholder="Tahun" value={form.tahun} onChange={handleChange} required /><br />
+        <input name="stok" type="number" placeholder="Stok" value={form.stok} onChange={handleChange} required /><br />
 
-        <input
-          name="penulis"
-          placeholder="Penulis"
-          value={form.penulis}
-          onChange={handleChange}
-          required
-        />
-        <br />
-
-        <input
-          name="penerbit"
-          placeholder="Penerbit"
-          value={form.penerbit}
-          onChange={handleChange}
-          required
-        />
-        <br />
-
-        <input
-          name="tahun"
-          type="number"
-          placeholder="Tahun"
-          value={form.tahun}
-          onChange={handleChange}
-          required
-        />
-        <br />
-
-        <input
-          name="stok"
-          type="number"
-          placeholder="Stok"
-          value={form.stok}
-          onChange={handleChange}
-          required
-        />
-        <br />
-
-        <button type="submit">Simpan Buku</button>
+        <button type="submit">
+          {editId ? "Update Buku" : "Simpan Buku"}
+        </button>
       </form>
 
       <hr />
@@ -113,24 +96,23 @@ export default function Books() {
             <th>Penerbit</th>
             <th>Tahun</th>
             <th>Stok</th>
+            <th>Aksi</th>
           </tr>
         </thead>
         <tbody>
-          {books.length === 0 ? (
-            <tr>
-              <td colSpan="5">Belum ada data</td>
+          {books.map((b) => (
+            <tr key={b.id}>
+              <td>{b.judul}</td>
+              <td>{b.penulis}</td>
+              <td>{b.penerbit}</td>
+              <td>{b.tahun}</td>
+              <td>{b.stok}</td>
+              <td>
+                <button onClick={() => handleEdit(b)}>Edit</button>
+                <button onClick={() => handleDelete(b.id)}>Hapus</button>
+              </td>
             </tr>
-          ) : (
-            books.map((b) => (
-              <tr key={b.id}>
-                <td>{b.judul}</td>
-                <td>{b.penulis}</td>
-                <td>{b.penerbit}</td>
-                <td>{b.tahun}</td>
-                <td>{b.stok}</td>
-              </tr>
-            ))
-          )}
+          ))}
         </tbody>
       </table>
     </div>
