@@ -1,60 +1,62 @@
 import { useState } from "react";
-import api from "../services/api";
+import { login } from "../services/api";
+import "./Login.css";
 
-export default function Login() {
+export default function Login({ setAuth }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setError("");
 
-    try {
-      const response = await api.post("/login", {
-        email,
-        password,
+    login({ email, password })
+      .then((res) => {
+        localStorage.setItem("token", res.data.token);
+        localStorage.setItem("user", JSON.stringify(res.data.user));
+        setAuth(true);
+      })
+      .catch(() => {
+        setError("Email atau password salah");
       });
-
-      console.log("LOGIN SUCCESS:", response.data);
-
-      localStorage.setItem("user", JSON.stringify(response.data.user));
-
-      window.location.href = "/dashboard";
-    } catch (err) {
-      setError("Email atau password salah");
-    }
   };
 
   return (
-    <div style={{ maxWidth: 400, margin: "100px auto" }}>
-      <h2>Login Perpustakaan</h2>
+    <div className="login-container">
+      <div className="login-card">
+        <h2>🔐 Login Perpustakaan</h2>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+        {error && <p className="error">{error}</p>}
 
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Email</label>
+        <form onSubmit={handleSubmit}>
           <input
             type="email"
+            placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
-        </div>
 
-        <div>
-          <label>Password</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
+          <div className="password-wrapper">
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            <span
+              className="toggle-password"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? "🙈" : "👁️"}
+            </span>
+          </div>
 
-        <button type="submit">Login</button>
-      </form>
+          <button type="submit">Login</button>
+        </form>
+      </div>
     </div>
   );
 }
