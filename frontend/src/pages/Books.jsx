@@ -6,6 +6,7 @@ import {
   deleteBook,
   borrowBook,
 } from "../services/api";
+import "./Books.css";
 
 export default function Books({ isAdmin }) {
   const [books, setBooks] = useState([]);
@@ -19,7 +20,6 @@ export default function Books({ isAdmin }) {
     stok: "",
   });
 
-  // 🔄 ambil data buku
   const loadBooks = () => {
     getBooks().then((res) => setBooks(res.data));
   };
@@ -28,12 +28,10 @@ export default function Books({ isAdmin }) {
     loadBooks();
   }, []);
 
-  // ✏️ input form
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // 💾 simpan / update buku (ADMIN)
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -51,7 +49,6 @@ export default function Books({ isAdmin }) {
     }
   };
 
-  // ✏️ edit buku
   const handleEdit = (book) => {
     setEditId(book.id);
     setForm({
@@ -63,14 +60,12 @@ export default function Books({ isAdmin }) {
     });
   };
 
-  // 🗑️ hapus buku
   const handleDelete = (id) => {
     if (confirm("Yakin hapus buku ini?")) {
       deleteBook(id).then(() => loadBooks());
     }
   };
 
-  // 📚 pinjam buku (USER)
   const handleBorrow = (bookId) => {
     const user = JSON.parse(localStorage.getItem("user"));
 
@@ -94,115 +89,79 @@ export default function Books({ isAdmin }) {
   };
 
   return (
-    <div style={{ marginTop: 20 }}>
-      {/* 🔒 FORM KHUSUS ADMIN */}
+    <div className="container">
+      <h1 className="title">📚 Perpustakaan Digital</h1>
+
+      {/* FORM ADMIN */}
       {isAdmin && (
-        <>
+        <div className="card">
           <h2>{editId ? "Edit Buku" : "Tambah Buku"}</h2>
 
-          <form onSubmit={handleSubmit}>
-            <input
-              name="judul"
-              placeholder="Judul"
-              value={form.judul}
-              onChange={handleChange}
-              required
-            /><br />
+          <form className="form" onSubmit={handleSubmit}>
+            <input name="judul" placeholder="Judul Buku" value={form.judul} onChange={handleChange} required />
+            <input name="penulis" placeholder="Penulis" value={form.penulis} onChange={handleChange} required />
+            <input name="penerbit" placeholder="Penerbit" value={form.penerbit} onChange={handleChange} required />
+            <input name="tahun" type="number" placeholder="Tahun" value={form.tahun} onChange={handleChange} required />
+            <input name="stok" type="number" placeholder="Stok" value={form.stok} onChange={handleChange} required />
 
-            <input
-              name="penulis"
-              placeholder="Penulis"
-              value={form.penulis}
-              onChange={handleChange}
-              required
-            /><br />
-
-            <input
-              name="penerbit"
-              placeholder="Penerbit"
-              value={form.penerbit}
-              onChange={handleChange}
-              required
-            /><br />
-
-            <input
-              name="tahun"
-              type="number"
-              placeholder="Tahun"
-              value={form.tahun}
-              onChange={handleChange}
-              required
-            /><br />
-
-            <input
-              name="stok"
-              type="number"
-              placeholder="Stok"
-              value={form.stok}
-              onChange={handleChange}
-              required
-            /><br />
-
-            <button type="submit">
+            <button className="btn primary" type="submit">
               {editId ? "Update Buku" : "Simpan Buku"}
             </button>
           </form>
-
-          <hr />
-        </>
+        </div>
       )}
 
-      {/* 📚 DAFTAR BUKU */}
-      <h2>Daftar Buku</h2>
+      {/* DAFTAR BUKU */}
+      <div className="card">
+        <h2>Daftar Buku</h2>
 
-      <table border="1" cellPadding="8">
-        <thead>
-          <tr>
-            <th>Judul</th>
-            <th>Penulis</th>
-            <th>Penerbit</th>
-            <th>Tahun</th>
-            <th>Stok</th>
-            <th>Aksi</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {books.length === 0 && (
+        <table>
+          <thead>
             <tr>
-              <td colSpan="6" align="center">
-                Data buku kosong
-              </td>
+              <th>Judul</th>
+              <th>Penulis</th>
+              <th>Penerbit</th>
+              <th>Tahun</th>
+              <th>Stok</th>
+              <th>Aksi</th>
             </tr>
-          )}
+          </thead>
 
-          {books.map((b) => (
-            <tr key={b.id}>
-              <td>{b.judul}</td>
-              <td>{b.penulis}</td>
-              <td>{b.penerbit}</td>
-              <td>{b.tahun}</td>
-              <td>{b.stok}</td>
+          <tbody>
+            {books.length === 0 && (
+              <tr>
+                <td colSpan="6" className="empty">Data buku kosong</td>
+              </tr>
+            )}
 
-              <td>
-                {isAdmin ? (
-                  <>
-                    <button onClick={() => handleEdit(b)}>Edit</button>{" "}
-                    <button onClick={() => handleDelete(b.id)}>Hapus</button>
-                  </>
-                ) : (
-                  <button
-                    disabled={b.stok < 1}
-                    onClick={() => handleBorrow(b.id)}
-                  >
-                    {b.stok < 1 ? "Stok Habis" : "Pinjam"}
-                  </button>
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+            {books.map((b) => (
+              <tr key={b.id}>
+                <td>{b.judul}</td>
+                <td>{b.penulis}</td>
+                <td>{b.penerbit}</td>
+                <td>{b.tahun}</td>
+                <td>{b.stok}</td>
+                <td>
+                  {isAdmin ? (
+                    <>
+                      <button className="btn warning" onClick={() => handleEdit(b)}>Edit</button>
+                      <button className="btn danger" onClick={() => handleDelete(b.id)}>Hapus</button>
+                    </>
+                  ) : (
+                    <button
+                      className="btn success"
+                      disabled={b.stok < 1}
+                      onClick={() => handleBorrow(b.id)}
+                    >
+                      {b.stok < 1 ? "Stok Habis" : "Pinjam"}
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
