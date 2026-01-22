@@ -46,11 +46,13 @@ export default function Login({ setAuth }) {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
+
             <span
               className="toggle-password"
               onClick={() => setShowPassword(!showPassword)}
+              title={showPassword ? "Sembunyikan password" : "Lihat password"}
             >
-              {showPassword ? "🙈" : "👁️"}
+              {showPassword ? "👁️‍🗨️" : "👁️"}
             </span>
           </div>
 
