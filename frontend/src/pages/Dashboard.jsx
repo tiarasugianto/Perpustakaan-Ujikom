@@ -5,15 +5,15 @@ export default function Dashboard() {
 
   return (
     <div style={{ padding: 20 }}>
-      <h1>Halaman Perpustakaan</h1>
+      <h1>Dashboard Perpustakaan</h1>
 
       {user && (
         <p>
-          Selamat datang, <strong>{user.name}</strong> ({user.role})
+          Login sebagai <strong>{user.name}</strong> ({user.role})
         </p>
       )}
 
-      <Books />
+      <Books isAdmin={user?.role === "admin"} />
     </div>
   );
 }
