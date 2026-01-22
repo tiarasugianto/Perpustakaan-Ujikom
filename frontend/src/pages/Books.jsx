@@ -4,6 +4,7 @@ import {
   createBook,
   updateBook,
   deleteBook,
+  borrowBook,
 } from "../services/api";
 
 export default function Books({ isAdmin }) {
@@ -18,6 +19,7 @@ export default function Books({ isAdmin }) {
     stok: "",
   });
 
+  // 🔄 ambil data buku
   const loadBooks = () => {
     getBooks().then((res) => setBooks(res.data));
   };
@@ -26,10 +28,12 @@ export default function Books({ isAdmin }) {
     loadBooks();
   }, []);
 
+  // ✏️ input form
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  // 💾 simpan / update buku (ADMIN)
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -47,15 +51,36 @@ export default function Books({ isAdmin }) {
     }
   };
 
+  // ✏️ edit buku
   const handleEdit = (book) => {
     setEditId(book.id);
-    setForm(book);
+    setForm({
+      judul: book.judul,
+      penulis: book.penulis,
+      penerbit: book.penerbit,
+      tahun: book.tahun,
+      stok: book.stok,
+    });
   };
 
+  // 🗑️ hapus buku
   const handleDelete = (id) => {
     if (confirm("Yakin hapus buku ini?")) {
       deleteBook(id).then(() => loadBooks());
     }
+  };
+
+  // 📚 pinjam buku (USER)
+  const handleBorrow = (bookId) => {
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    borrowBook({
+      user_id: user.id,
+      book_id: bookId,
+    }).then(() => {
+      alert("Buku berhasil dipinjam");
+      loadBooks();
+    });
   };
 
   const resetForm = () => {
@@ -70,18 +95,53 @@ export default function Books({ isAdmin }) {
 
   return (
     <div style={{ marginTop: 20 }}>
-
-      {/* 🔒 FORM HANYA UNTUK ADMIN */}
+      {/* 🔒 FORM KHUSUS ADMIN */}
       {isAdmin && (
         <>
           <h2>{editId ? "Edit Buku" : "Tambah Buku"}</h2>
 
           <form onSubmit={handleSubmit}>
-            <input name="judul" placeholder="Judul" value={form.judul} onChange={handleChange} required /><br />
-            <input name="penulis" placeholder="Penulis" value={form.penulis} onChange={handleChange} required /><br />
-            <input name="penerbit" placeholder="Penerbit" value={form.penerbit} onChange={handleChange} required /><br />
-            <input name="tahun" type="number" placeholder="Tahun" value={form.tahun} onChange={handleChange} required /><br />
-            <input name="stok" type="number" placeholder="Stok" value={form.stok} onChange={handleChange} required /><br />
+            <input
+              name="judul"
+              placeholder="Judul"
+              value={form.judul}
+              onChange={handleChange}
+              required
+            /><br />
+
+            <input
+              name="penulis"
+              placeholder="Penulis"
+              value={form.penulis}
+              onChange={handleChange}
+              required
+            /><br />
+
+            <input
+              name="penerbit"
+              placeholder="Penerbit"
+              value={form.penerbit}
+              onChange={handleChange}
+              required
+            /><br />
+
+            <input
+              name="tahun"
+              type="number"
+              placeholder="Tahun"
+              value={form.tahun}
+              onChange={handleChange}
+              required
+            /><br />
+
+            <input
+              name="stok"
+              type="number"
+              placeholder="Stok"
+              value={form.stok}
+              onChange={handleChange}
+              required
+            /><br />
 
             <button type="submit">
               {editId ? "Update Buku" : "Simpan Buku"}
@@ -92,6 +152,7 @@ export default function Books({ isAdmin }) {
         </>
       )}
 
+      {/* 📚 DAFTAR BUKU */}
       <h2>Daftar Buku</h2>
 
       <table border="1" cellPadding="8">
@@ -102,10 +163,19 @@ export default function Books({ isAdmin }) {
             <th>Penerbit</th>
             <th>Tahun</th>
             <th>Stok</th>
-            {isAdmin && <th>Aksi</th>}
+            <th>Aksi</th>
           </tr>
         </thead>
+
         <tbody>
+          {books.length === 0 && (
+            <tr>
+              <td colSpan="6" align="center">
+                Data buku kosong
+              </td>
+            </tr>
+          )}
+
           {books.map((b) => (
             <tr key={b.id}>
               <td>{b.judul}</td>
@@ -114,13 +184,21 @@ export default function Books({ isAdmin }) {
               <td>{b.tahun}</td>
               <td>{b.stok}</td>
 
-              {/* 🔒 AKSI HANYA ADMIN */}
-              {isAdmin && (
-                <td>
-                  <button onClick={() => handleEdit(b)}>Edit</button>
-                  <button onClick={() => handleDelete(b.id)}>Hapus</button>
-                </td>
-              )}
+              <td>
+                {isAdmin ? (
+                  <>
+                    <button onClick={() => handleEdit(b)}>Edit</button>{" "}
+                    <button onClick={() => handleDelete(b.id)}>Hapus</button>
+                  </>
+                ) : (
+                  <button
+                    disabled={b.stok < 1}
+                    onClick={() => handleBorrow(b.id)}
+                  >
+                    {b.stok < 1 ? "Stok Habis" : "Pinjam"}
+                  </button>
+                )}
+              </td>
             </tr>
           ))}
         </tbody>
