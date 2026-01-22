@@ -52,7 +52,7 @@ export default function Login({ setAuth }) {
               onClick={() => setShowPassword(!showPassword)}
               title={showPassword ? "Sembunyikan password" : "Lihat password"}
             >
-              {showPassword ? "👁️‍🗨️" : "👁️"}
+              {showPassword ? "👁️" : "👁️‍🗨️"}
             </span>
           </div>
 
