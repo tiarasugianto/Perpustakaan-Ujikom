@@ -6,7 +6,7 @@ import {
   deleteBook,
 } from "../services/api";
 
-export default function Books() {
+export default function Books({ isAdmin }) {
   const [books, setBooks] = useState([]);
   const [editId, setEditId] = useState(null);
 
@@ -70,21 +70,27 @@ export default function Books() {
 
   return (
     <div style={{ marginTop: 20 }}>
-      <h2>{editId ? "Edit Buku" : "Tambah Buku"}</h2>
 
-      <form onSubmit={handleSubmit}>
-        <input name="judul" placeholder="Judul" value={form.judul} onChange={handleChange} required /><br />
-        <input name="penulis" placeholder="Penulis" value={form.penulis} onChange={handleChange} required /><br />
-        <input name="penerbit" placeholder="Penerbit" value={form.penerbit} onChange={handleChange} required /><br />
-        <input name="tahun" type="number" placeholder="Tahun" value={form.tahun} onChange={handleChange} required /><br />
-        <input name="stok" type="number" placeholder="Stok" value={form.stok} onChange={handleChange} required /><br />
+      {/* 🔒 FORM HANYA UNTUK ADMIN */}
+      {isAdmin && (
+        <>
+          <h2>{editId ? "Edit Buku" : "Tambah Buku"}</h2>
 
-        <button type="submit">
-          {editId ? "Update Buku" : "Simpan Buku"}
-        </button>
-      </form>
+          <form onSubmit={handleSubmit}>
+            <input name="judul" placeholder="Judul" value={form.judul} onChange={handleChange} required /><br />
+            <input name="penulis" placeholder="Penulis" value={form.penulis} onChange={handleChange} required /><br />
+            <input name="penerbit" placeholder="Penerbit" value={form.penerbit} onChange={handleChange} required /><br />
+            <input name="tahun" type="number" placeholder="Tahun" value={form.tahun} onChange={handleChange} required /><br />
+            <input name="stok" type="number" placeholder="Stok" value={form.stok} onChange={handleChange} required /><br />
 
-      <hr />
+            <button type="submit">
+              {editId ? "Update Buku" : "Simpan Buku"}
+            </button>
+          </form>
+
+          <hr />
+        </>
+      )}
 
       <h2>Daftar Buku</h2>
 
@@ -96,7 +102,7 @@ export default function Books() {
             <th>Penerbit</th>
             <th>Tahun</th>
             <th>Stok</th>
-            <th>Aksi</th>
+            {isAdmin && <th>Aksi</th>}
           </tr>
         </thead>
         <tbody>
@@ -107,10 +113,14 @@ export default function Books() {
               <td>{b.penerbit}</td>
               <td>{b.tahun}</td>
               <td>{b.stok}</td>
-              <td>
-                <button onClick={() => handleEdit(b)}>Edit</button>
-                <button onClick={() => handleDelete(b.id)}>Hapus</button>
-              </td>
+
+              {/* 🔒 AKSI HANYA ADMIN */}
+              {isAdmin && (
+                <td>
+                  <button onClick={() => handleEdit(b)}>Edit</button>
+                  <button onClick={() => handleDelete(b.id)}>Hapus</button>
+                </td>
+              )}
             </tr>
           ))}
         </tbody>
