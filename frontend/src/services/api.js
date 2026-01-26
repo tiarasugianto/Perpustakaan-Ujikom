@@ -40,5 +40,7 @@ export const deleteBook = (id) => api.delete(`/books/${id}`);
 // LOANS
 // =====================
 export const borrowBook = (data) => api.post("/loans", data);
+export const getLoans = (params) =>
+  api.get("/loans", { params });
 
 export default api;
