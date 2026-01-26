@@ -147,6 +147,43 @@ td {
   text-align: center;
   border-bottom: 1px solid #ffe0ec;
 }
+.book-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.book-form input {
+  padding: 12px;
+  border-radius: 12px;
+  border: 1.5px solid #ff9fc4;
+  background: #fff5fa;
+  font-size: 14px;
+}
+
+.book-form input:focus {
+  outline: none;
+  border-color: #ff5fa2;
+  box-shadow: 0 0 0 2px rgba(255, 95, 162, 0.2);
+}
+
+.btn-primary {
+  grid-column: span 2; /* 🔥 tombol full lebar */
+  padding: 12px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #ff7eb3, #ff4d94);
+  color: white;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
 
 /* =========================
    ANIMATION
