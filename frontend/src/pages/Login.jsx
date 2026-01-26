@@ -14,7 +14,7 @@ export default function Login({ setAuth }) {
     login({ email, password })
       .then((res) => {
         localStorage.setItem("token", res.data.token);
-        localStorage.setItem("user", JSON.stringify(res.data.user));
+       localStorage.setItem("user", JSON.stringify(res.data.user));
         setAuth(true);
       })
       .catch(() => {
