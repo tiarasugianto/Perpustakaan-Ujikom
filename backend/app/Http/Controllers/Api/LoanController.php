@@ -9,10 +9,19 @@ use Illuminate\Http\Request;
 
 class LoanController extends Controller
 {
-    public function index()
-    {
-        return Loan::with('book','user')->get();
+    public function index(Request $request)
+{
+    $user = $request->query('user_id');
+    $role = $request->query('role');
+
+    if ($role === 'admin') {
+        return Loan::with(['book', 'user'])->get();
     }
+
+    return Loan::with('book')
+        ->where('user_id', $user)
+        ->get();
+}
 
     public function store(Request $request)
     {
