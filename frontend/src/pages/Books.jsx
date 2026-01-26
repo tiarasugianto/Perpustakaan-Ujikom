@@ -90,52 +90,19 @@ export default function Books({ isAdmin }) {
           <h2>{editId ? "Edit Buku" : "Tambah Buku"}</h2>
 
           <form onSubmit={handleSubmit} className="book-form">
-            <input
-              name="judul"
-              placeholder="Judul Buku"
-              value={form.judul}
-              onChange={handleChange}
-              required
-            />
+  <input name="judul" placeholder="Judul Buku" value={form.judul} onChange={handleChange} required />
+  <input name="penulis" placeholder="Penulis" value={form.penulis} onChange={handleChange} required />
 
-            <input
-              name="penulis"
-              placeholder="Penulis"
-              value={form.penulis}
-              onChange={handleChange}
-              required
-            />
+  <input name="penerbit" placeholder="Penerbit" value={form.penerbit} onChange={handleChange} required />
+  <input name="tahun" type="number" placeholder="Tahun" value={form.tahun} onChange={handleChange} required />
 
-            <input
-              name="penerbit"
-              placeholder="Penerbit"
-              value={form.penerbit}
-              onChange={handleChange}
-              required
-            />
+  <input name="stok" type="number" placeholder="Stok" value={form.stok} onChange={handleChange} required />
 
-            <input
-              name="tahun"
-              type="number"
-              placeholder="Tahun"
-              value={form.tahun}
-              onChange={handleChange}
-              required
-            />
-
-            <input
-              name="stok"
-              type="number"
-              placeholder="Stok"
-              value={form.stok}
-              onChange={handleChange}
-              required
-            />
-
-            <button type="submit" className="btn-primary">
-              {editId ? "Update Buku" : "Simpan Buku"}
-            </button>
-          </form>
+  {/* ⬇️ TOMBOL FULL 2 KOLOM */}
+  <button type="submit" className="btn-primary full">
+    {editId ? "Update Buku" : "Simpan Buku"}
+  </button>
+</form>
         </div>
       )}
 

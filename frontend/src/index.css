@@ -147,6 +147,7 @@ td {
   text-align: center;
   border-bottom: 1px solid #ffe0ec;
 }
+/* 💗 FORM BUKU */
 .book-form {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -155,36 +156,46 @@ td {
 }
 
 .book-form input {
-  padding: 12px;
+  height: 42px;
+  padding: 10px 14px;
   border-radius: 12px;
-  border: 1.5px solid #ff9fc4;
-  background: #fff5fa;
+  border: 1.5px solid #ff9ecf;
+  background: #fff5f9;
   font-size: 14px;
 }
 
 .book-form input:focus {
   outline: none;
   border-color: #ff5fa2;
-  box-shadow: 0 0 0 2px rgba(255, 95, 162, 0.2);
+  box-shadow: 0 0 0 2px #ffd1e6;
 }
 
+/* 💖 TOMBOL */
 .btn-primary {
-  grid-column: span 2; /* 🔥 tombol full lebar */
-  padding: 12px;
-  border-radius: 14px;
-  background: linear-gradient(135deg, #ff7eb3, #ff4d94);
+  background: linear-gradient(135deg, #ff7eb3, #ff4f9a);
   color: white;
-  font-weight: bold;
   border: none;
+  height: 44px;
+  border-radius: 14px;
+  font-weight: 600;
   cursor: pointer;
-  transition: 0.2s;
 }
 
-.btn-primary:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
+/* ⬇️ INI YANG BIKIN RAPI */
+.btn-primary.full {
+  grid-column: span 2;
 }
 
+/* 📱 RESPONSIVE */
+@media (max-width: 600px) {
+  .book-form {
+    grid-template-columns: 1fr;
+  }
+
+  .btn-primary.full {
+    grid-column: span 1;
+  }
+}
 /* =========================
    ANIMATION
 ========================= */
