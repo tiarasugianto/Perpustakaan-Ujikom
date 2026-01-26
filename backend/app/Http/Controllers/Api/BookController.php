@@ -3,50 +3,47 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Book;
 use Illuminate\Http\Request;
+use App\Models\Book;
 
 class BookController extends Controller
 {
-    private function isAdmin(Request $request)
-    {
-        return $request->user && $request->user->role === 'admin';
-    }
-
+    // ambil semua buku
     public function index()
     {
-        return response()->json(Book::all());
+        return Book::all();
     }
 
+    // simpan buku
     public function store(Request $request)
     {
-        if ($request->role !== 'admin') {
-            return response()->json(['message' => 'Forbidden'], 403);
-        }
+        $data = $request->validate([
+            'judul' => 'required',
+            'penulis' => 'required',
+            'penerbit' => 'required',
+            'tahun' => 'required|integer',
+            'stok' => 'required|integer',
+        ]);
 
-        return response()->json(Book::create($request->all()), 201);
+        return Book::create($data);
     }
 
+    // update buku
     public function update(Request $request, $id)
     {
-        if ($request->role !== 'admin') {
-            return response()->json(['message' => 'Forbidden'], 403);
-        }
-
         $book = Book::findOrFail($id);
         $book->update($request->all());
 
-        return response()->json($book);
+        return $book;
     }
 
-    public function destroy(Request $request, $id)
+    // hapus buku
+    public function destroy($id)
     {
-        if ($request->role !== 'admin') {
-            return response()->json(['message' => 'Forbidden'], 403);
-        }
-
         Book::destroy($id);
 
-        return response()->json(['message' => 'Buku dihapus']);
+        return response()->json([
+            'message' => 'Buku berhasil dihapus'
+        ]);
     }
 }
