@@ -109,3 +109,17 @@ table tbody tr:hover {
   background: #f3c1d3;
   cursor: not-allowed;
 }
+.card {
+  position: relative;
+  z-index: 1;
+}
+
+.book-form,
+.book-table {
+  position: relative;
+  z-index: 2;
+}
+
+button {
+  pointer-events: auto;
+}

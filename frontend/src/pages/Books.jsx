@@ -115,9 +115,13 @@ export default function Books({ isAdmin }) {
                 <td>{b.stok}</td>
                 {isAdmin && (
                   <td>
-                    <button className="btn-edit" onClick={() => handleEdit(b)}>
-                      Edit
-                    </button>
+                    <button
+  type="button"
+  className="btn-edit"
+  onClick={() => handleEdit(b)}
+>
+  Edit
+</button>
                     <button className="btn-delete" onClick={() => handleDelete(b.id)}>
                       Hapus
                     </button>

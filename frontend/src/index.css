@@ -222,3 +222,16 @@ td {
     font-size: 1.8em;
   }
 }
+/* =========================
+   DASHBOARD & BOOKS CENTER
+   ========================= */
+
+.dashboard-content {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.books-wrapper {
+  max-width: 900px;
+  margin: 0 auto;
+}
