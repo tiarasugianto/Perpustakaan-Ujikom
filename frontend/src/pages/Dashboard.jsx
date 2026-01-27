@@ -9,18 +9,25 @@ export default function Dashboard() {
   };
 
   return (
-    <div style={{ padding: 20 }}>
-      <h1>Dashboard Perpustakaan</h1>
+    <div className="dashboard-page">
+      <div className="dashboard-header">
+        <h1>Dashboard Perpustakaan</h1>
 
-      {user && (
-        <p>
-          Login sebagai <strong>{user.name}</strong> ({user.role})
-        </p>
-      )}
+        {user && (
+          <p className="role-info">
+            Login sebagai <strong>{user.name}</strong> ({user.role})
+          </p>
+        )}
 
-      <button onClick={handleLogout}>Logout</button>
+        <button className="btn-logout" onClick={handleLogout}>
+          Logout
+        </button>
+      </div>
 
-      <Books isAdmin={user?.role === "admin"} />
+      {/* KONTEN TENGAH */}
+      <div className="dashboard-content">
+        <Books isAdmin={user?.role === "admin"} />
+      </div>
     </div>
   );
 }
