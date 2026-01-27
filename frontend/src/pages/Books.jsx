@@ -19,12 +19,8 @@ export default function Books({ isAdmin }) {
   });
 
   const loadBooks = async () => {
-    try {
-      const res = await getBooks();
-      setBooks(res.data);
-    } catch (err) {
-      console.error("Gagal load buku", err);
-    }
+    const res = await getBooks();
+    setBooks(res.data);
   };
 
   useEffect(() => {
@@ -48,31 +44,20 @@ export default function Books({ isAdmin }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    try {
-      if (editId) {
-        await updateBook(editId, form);
-        setEditId(null);
-      } else {
-        await createBook(form);
-      }
-
-      resetForm();
-      loadBooks();
-    } catch (err) {
-      console.error("Gagal simpan buku", err);
-      alert("Gagal menyimpan buku");
+    if (editId) {
+      await updateBook(editId, form);
+      setEditId(null);
+    } else {
+      await createBook(form);
     }
+
+    resetForm();
+    loadBooks();
   };
 
   const handleEdit = (book) => {
     setEditId(book.id);
-    setForm({
-      judul: book.judul,
-      penulis: book.penulis,
-      penerbit: book.penerbit,
-      tahun: book.tahun,
-      stok: book.stok,
-    });
+    setForm(book);
   };
 
   const handleDelete = async (id) => {
@@ -83,34 +68,33 @@ export default function Books({ isAdmin }) {
   };
 
   return (
-    <div className="container">
-      {/* 🔒 FORM HANYA ADMIN */}
+    <div className="books-wrapper">
+      {/* FORM ADMIN */}
       {isAdmin && (
         <div className="card">
           <h2>{editId ? "Edit Buku" : "Tambah Buku"}</h2>
 
-          <form onSubmit={handleSubmit} className="book-form">
-  <input name="judul" placeholder="Judul Buku" value={form.judul} onChange={handleChange} required />
-  <input name="penulis" placeholder="Penulis" value={form.penulis} onChange={handleChange} required />
+          <form className="book-form" onSubmit={handleSubmit}>
+            <input name="judul" placeholder="Judul Buku" value={form.judul} onChange={handleChange} required />
+            <input name="penulis" placeholder="Penulis" value={form.penulis} onChange={handleChange} required />
 
-  <input name="penerbit" placeholder="Penerbit" value={form.penerbit} onChange={handleChange} required />
-  <input name="tahun" type="number" placeholder="Tahun" value={form.tahun} onChange={handleChange} required />
+            <input name="penerbit" placeholder="Penerbit" value={form.penerbit} onChange={handleChange} required />
+            <input name="tahun" type="number" placeholder="Tahun" value={form.tahun} onChange={handleChange} required />
 
-  <input name="stok" type="number" placeholder="Stok" value={form.stok} onChange={handleChange} required />
+            <input name="stok" type="number" placeholder="Stok" value={form.stok} onChange={handleChange} required />
 
-  {/* ⬇️ TOMBOL FULL 2 KOLOM */}
-  <button type="submit" className="btn-primary full">
-    {editId ? "Update Buku" : "Simpan Buku"}
-  </button>
-</form>
+            <button className="btn-primary full">
+              {editId ? "Update Buku" : "Simpan Buku"}
+            </button>
+          </form>
         </div>
       )}
 
-      {/* 📚 DAFTAR BUKU */}
+      {/* DAFTAR BUKU */}
       <div className="card">
         <h2>Daftar Buku</h2>
 
-        <table className="table">
+        <table className="book-table">
           <thead>
             <tr>
               <th>Judul</th>
@@ -131,8 +115,12 @@ export default function Books({ isAdmin }) {
                 <td>{b.stok}</td>
                 {isAdmin && (
                   <td>
-                    <button onClick={() => handleEdit(b)}>Edit</button>
-                    <button onClick={() => handleDelete(b.id)}>Hapus</button>
+                    <button className="btn-edit" onClick={() => handleEdit(b)}>
+                      Edit
+                    </button>
+                    <button className="btn-delete" onClick={() => handleDelete(b.id)}>
+                      Hapus
+                    </button>
                   </td>
                 )}
               </tr>
