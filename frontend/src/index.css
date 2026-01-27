@@ -235,3 +235,61 @@ td {
   max-width: 900px;
   margin: 0 auto;
 }
+/* ===== DASHBOARD LAYOUT ===== */
+.dashboard-page {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #ffe6f0, #ffd6e8);
+  padding: 40px 20px;
+}
+
+/* HEADER */
+.dashboard-header {
+  text-align: center;
+  margin-bottom: 40px;
+  position: relative;
+}
+
+.dashboard-header h1 {
+  color: #ff4d94;
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+.role-info {
+  color: #a64d79;
+  font-size: 14px;
+}
+
+/* LOGOUT */
+.btn-logout {
+  position: absolute;
+  right: 20px;
+  top: 0;
+  background: #ff7ab8;
+  border: none;
+  color: white;
+  padding: 8px 18px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+/* ===== CONTENT CENTER ===== */
+.dashboard-content {
+  display: flex;
+  justify-content: center;
+}
+
+/* WRAPPER BUKU */
+.books-wrapper {
+  width: 100%;
+  max-width: 720px;   /* 🔥 INI KUNCI */
+}
+
+/* CARD PUTIH */
+.card {
+  background: white;
+  border-radius: 18px;
+  padding: 24px;
+  margin-bottom: 28px;
+  box-shadow: 0 10px 30px rgba(255, 105, 180, 0.2);
+}
