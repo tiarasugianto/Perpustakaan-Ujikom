@@ -32,6 +32,7 @@ export default function Books({ isAdmin }) {
   };
 
   const resetForm = () => {
+    setEditId(null);
     setForm({
       judul: "",
       penulis: "",
@@ -44,20 +45,32 @@ export default function Books({ isAdmin }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (editId) {
-      await updateBook(editId, form);
-      setEditId(null);
-    } else {
-      await createBook(form);
-    }
+    try {
+      if (editId) {
+        await updateBook(editId, form);
+      } else {
+        await createBook(form);
+      }
 
-    resetForm();
-    loadBooks();
+      resetForm();
+      loadBooks();
+    } catch (err) {
+      alert("Gagal menyimpan buku");
+    }
   };
 
   const handleEdit = (book) => {
     setEditId(book.id);
-    setForm(book);
+    setForm({
+      judul: book.judul,
+      penulis: book.penulis,
+      penerbit: book.penerbit,
+      tahun: book.tahun,
+      stok: book.stok,
+    });
+
+    // 🔥 auto scroll ke form (biar keliatan edit mode)
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleDelete = async (id) => {
@@ -72,20 +85,62 @@ export default function Books({ isAdmin }) {
       {/* FORM ADMIN */}
       {isAdmin && (
         <div className="card">
-          <h2>{editId ? "Edit Buku" : "Tambah Buku"}</h2>
+          <h2>{editId ? "✏️ Edit Buku" : "➕ Tambah Buku"}</h2>
 
           <form className="book-form" onSubmit={handleSubmit}>
-            <input name="judul" placeholder="Judul Buku" value={form.judul} onChange={handleChange} required />
-            <input name="penulis" placeholder="Penulis" value={form.penulis} onChange={handleChange} required />
+            <input
+              name="judul"
+              placeholder="Judul Buku"
+              value={form.judul}
+              onChange={handleChange}
+              required
+            />
+            <input
+              name="penulis"
+              placeholder="Penulis"
+              value={form.penulis}
+              onChange={handleChange}
+              required
+            />
 
-            <input name="penerbit" placeholder="Penerbit" value={form.penerbit} onChange={handleChange} required />
-            <input name="tahun" type="number" placeholder="Tahun" value={form.tahun} onChange={handleChange} required />
+            <input
+              name="penerbit"
+              placeholder="Penerbit"
+              value={form.penerbit}
+              onChange={handleChange}
+              required
+            />
+            <input
+              name="tahun"
+              type="number"
+              placeholder="Tahun"
+              value={form.tahun}
+              onChange={handleChange}
+              required
+            />
 
-            <input name="stok" type="number" placeholder="Stok" value={form.stok} onChange={handleChange} required />
+            <input
+              name="stok"
+              type="number"
+              placeholder="Stok"
+              value={form.stok}
+              onChange={handleChange}
+              required
+            />
 
-            <button className="btn-primary full">
+            <button type="submit" className="btn-primary full">
               {editId ? "Update Buku" : "Simpan Buku"}
             </button>
+
+            {editId && (
+              <button
+                type="button"
+                className="btn-cancel full"
+                onClick={resetForm}
+              >
+                Batal Edit
+              </button>
+            )}
           </form>
         </div>
       )}
@@ -116,13 +171,17 @@ export default function Books({ isAdmin }) {
                 {isAdmin && (
                   <td>
                     <button
-  type="button"
-  className="btn-edit"
-  onClick={() => handleEdit(b)}
->
-  Edit
-</button>
-                    <button className="btn-delete" onClick={() => handleDelete(b.id)}>
+                      type="button"
+                      className="btn-edit"
+                      onClick={() => handleEdit(b)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      className="btn-delete"
+                      onClick={() => handleDelete(b.id)}
+                    >
                       Hapus
                     </button>
                   </td>
