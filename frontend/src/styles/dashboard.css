@@ -1,0 +1,118 @@
+/* ===== PAGE ===== */
+.dashboard-page {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #ffe4ef, #ffd1e6);
+  padding: 40px 20px;
+}
+
+/* ===== HEADER ===== */
+.dashboard-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.dashboard-header h1 {
+  color: #ff4f9a;
+  margin-bottom: 8px;
+}
+
+.role-info {
+  color: #7a2b52;
+  margin-bottom: 12px;
+}
+
+.btn-logout {
+  background: #ff6fae;
+  border: none;
+  color: white;
+  padding: 8px 18px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+/* ===== CONTENT TENGAH ===== */
+.dashboard-content {
+  display: flex;
+  justify-content: center;   /* 🔥 INI YANG BIKIN KE TENGAH */
+}
+
+/* ===== BOOKS ===== */
+.books-wrapper {
+  width: 100%;
+  max-width: 700px;          /* 🔥 INI BIKIN KOTAK GA KE KIRI */
+}
+
+/* ===== CARD ===== */
+.card {
+  background: white;
+  border-radius: 25px;
+  padding: 25px;
+  margin-bottom: 23px;
+  box-shadow: 0 10px 30px rgba(255, 105, 180, 0.2);
+}
+
+/* ===== FORM ===== */
+.book-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.book-form input {
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid #ffb6d5;
+}
+
+.book-form input:focus {
+  outline: none;
+  border-color: #ff5fa2;
+}
+
+.book-form .full {
+  grid-column: 1 / -1;
+  margin-top: 10px;
+}
+
+/* ===== BUTTON ===== */
+.btn-primary {
+  background: linear-gradient(90deg, #ff5fa2, #ff8cc6);
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 14px;
+  cursor: pointer;
+}
+
+/* ===== TABLE ===== */
+.book-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+}
+
+.book-table th {
+  background: #ffd6e8;
+  padding: 10px;
+}
+
+.book-table td {
+  padding: 10px;
+  border-bottom: 1px solid #f5b3d1;
+}
+
+.btn-edit {
+  background: #ff9acb;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 10px;
+  margin-right: 6px;
+}
+
+.btn-delete {
+  background: #ff4f9a;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 10px;
+}
