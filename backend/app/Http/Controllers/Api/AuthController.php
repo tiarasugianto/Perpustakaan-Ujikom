@@ -1,17 +1,18 @@
 <?php
 
-namespace App\Http\Controllers\Api; // ✅ sesuai folder Api
+namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
-class AuthController extends Controller // ✅ class
+class AuthController extends Controller
 {
     public function login(Request $request)
     {
-        dd($request->all()); // ✅ debug cek data dari React
+        // DEBUG
+        return response()->json($request->all());
 
         $user = User::where('email', $request->email)->first();
 
