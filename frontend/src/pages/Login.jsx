@@ -21,9 +21,10 @@ export default function Login({ setAuth }) {
     localStorage.setItem("user", JSON.stringify(res.data.user));
     setAuth(true);
   })
-      .catch(() => {
-        setError("Email atau password salah");
-      });
+      .catch((err) => {
+  console.log(err.response?.data); // ✅ lihat error asli
+  setError("Email atau password salah");
+});
   };
 
   return (
