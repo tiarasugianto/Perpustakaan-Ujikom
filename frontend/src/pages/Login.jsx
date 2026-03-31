@@ -12,11 +12,15 @@ export default function Login({ setAuth }) {
     e.preventDefault();
 
     login({ email, password })
-      .then((res) => {
-        localStorage.setItem("token", res.data.token);
-       localStorage.setItem("user", JSON.stringify(res.data.user));
-        setAuth(true);
-      })
+  .then((res) => {
+    console.log(res.data); // ✅ debug
+
+    // ❌ hapus token karena backend gak kirim
+    // localStorage.setItem("token", res.data.token);
+
+    localStorage.setItem("user", JSON.stringify(res.data.user));
+    setAuth(true);
+  })
       .catch(() => {
         setError("Email atau password salah");
       });
