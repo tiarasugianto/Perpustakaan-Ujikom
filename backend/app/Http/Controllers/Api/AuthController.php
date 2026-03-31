@@ -1,32 +1,21 @@
-<?php
+use Illuminate\Support\Facades\Hash; // untuk cek password
 
-namespace App\Http\Controllers\Api;
-
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\User;
-use Illuminate\Support\Facades\Hash;
-
-class AuthController extends Controller
+public function login(Request $request)
 {
-    public function login(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required'
-        ]);
+    $email = $request->email; // ambil email dari frontend
+    $password = $request->password; // ambil password
 
-        $user = User::where('email', $request->email)->first();
+    $user = User::where('email', $email)->first(); // cari user
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json([
-                'message' => 'Email atau password salah'
-            ], 401);
-        }
-
+    // cek user & password
+    if (!$user || !Hash::check($password, $user->password)) {
         return response()->json([
-            'message' => 'Login berhasil',
-            'user' => $user
-        ]);
+            'message' => 'Email atau password salah'
+        ], 401);
     }
+
+    return response()->json([
+        'message' => 'Login berhasil',
+        'user' => $user
+    ]);
 }
