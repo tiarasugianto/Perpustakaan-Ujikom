@@ -25,33 +25,44 @@ export default function Login({ setAuth }) {
       });
   };
 
-  // 🟢 Fungsi Pop-up Lupa Password dengan Fitur Mata & Anti-Autofill
+  // 🟢 Fungsi Pop-up Lupa Password - DIPERBAIKI POSISINYA
   const handleForgotPassword = async () => {
     const { value: formValues } = await Swal.fire({
       title: 'Reset Password',
       html:
-        '<p style="font-size:13px; color:#6B7280; margin-bottom:10px;">Masukkan email akunmu dan password baru.</p>' +
-        // Input Email (Bikin kosong & matikan autofill)
-        '<input id="reset-email" class="swal2-input" placeholder="Email Terdaftar" autocomplete="off" value="">' +
-        // Input Password dengan pembungkus agar bisa ada icon mata
-        '<div style="position:relative; width: 260px; margin: 0 auto;">' +
-          '<input id="reset-pass" class="swal2-input" type="password" placeholder="Password Baru" style="width:100%" autocomplete="new-password">' +
-          '<span id="toggle-reset-pass" style="position:absolute; right:10px; top:25px; cursor:pointer; font-size:18px;">👁️</span>' +
+        '<p style="font-size:13px; color:#6B7280; margin-bottom:15px;">Masukkan email akunmu dan password baru.</p>' +
+        
+        // --- CONTAINER UTAMA BIKIN TENGAH ---
+        '<div style="display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%;">' +
+          
+          // 1. Input Email (Kasih lebar pasti biar sama)
+          '<input id="reset-email" class="swal2-input" placeholder="Email Terdaftar" autocomplete="off" value="" style="width: 280px; margin: 0; padding: 10px;">' +
+          
+          // 2. Pembungkus Password (Bikin relatif untuk mata)
+          '<div style="position:relative; width: 280px; margin: 0;">' +
+            '<input id="reset-pass" class="swal2-input" type="password" placeholder="Password Baru" style="width:100%; margin: 0; padding: 10px 40px 10px 10px;">' +
+            // Icon Mata (Posisikan di dalam input)
+            '<span id="toggle-reset-pass" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); cursor:pointer; font-size:16px; color:#9CA3AF; z-index:10;">👁️</span>' +
+          '</div>' +
         '</div>',
+
       focusConfirm: false,
       confirmButtonColor: '#DB2777',
       confirmButtonText: 'Update Password',
       showCancelButton: true,
+      
+      // Logika Mata (Sama seperti kemarin)
       didOpen: () => {
-        // Logika Toggle Mata di dalam SweetAlert
         const passwordInput = document.getElementById('reset-pass');
         const toggleIcon = document.getElementById('toggle-reset-pass');
         toggleIcon.addEventListener('click', () => {
           const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
           passwordInput.setAttribute('type', type);
           toggleIcon.textContent = type === 'password' ? '👁️' : '🔒';
+          toggleIcon.style.color = type === 'password' ? '#9CA3AF' : '#DB2777';
         });
       },
+      
       preConfirm: () => {
         const emailVal = document.getElementById('reset-email').value;
         const passVal = document.getElementById('reset-pass').value;
