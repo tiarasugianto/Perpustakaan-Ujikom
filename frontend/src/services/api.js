@@ -37,10 +37,11 @@ export const updateBook = (id, data) => api.put(`/books/${id}`, data);
 export const deleteBook = (id) => api.delete(`/books/${id}`);
 
 // =====================
-// LOANS
+// LOANS Fitur Peminjaman
 // =====================
+export const getLoans = () => api.get("/loans");
 export const borrowBook = (data) => api.post("/loans", data);
-export const getLoans = (params) =>
+export const returnBook = (id) => api.put(`/loans/${id}`);
   api.get("/loans", { params });
 
 export default api;

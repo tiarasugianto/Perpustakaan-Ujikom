@@ -3,43 +3,59 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use App\Models\Loan;
 use App\Models\Book;
-use Illuminate\Http\Request;
+use Carbon\Carbon; // Library untuk urusan Jam & Tanggal
 
 class LoanController extends Controller
 {
-    public function index(Request $request)
-{
-    $user = $request->query('user_id');
-    $role = $request->query('role');
-
-    if ($role === 'admin') {
-        return Loan::with(['book', 'user'])->get();
+    // 1. Ambil semua data pinjaman (untuk Admin melihat riwayat)
+    public function index()
+    {
+        // Mengambil data loan beserta data user dan bukunya
+        $loans = Loan::with(['user', 'book'])->orderBy('created_at', 'desc')->get();
+        return response()->json($loans);
     }
 
-    return Loan::with('book')
-        ->where('user_id', $user)
-        ->get();
-}
-
+    // 2. Fitur PINJAM BUKU
     public function store(Request $request)
     {
-        $book = Book::findOrFail($request->book_id);
-
-        if ($book->stok < 1) {
-            return response()->json(['message' => 'Stok habis'], 400);
+        $book = Book::find($request->book_id);
+        
+        // Cek stok dulu
+        if ($book->stok <= 0) {
+            return response()->json(['message' => 'Maaf, stok buku ini sedang habis!'], 400);
         }
-
-        $book->decrement('stok');
 
         $loan = Loan::create([
             'user_id' => $request->user_id,
             'book_id' => $request->book_id,
-            'tanggal_pinjam' => now(),
-            'status' => 'dipinjam'
+            'borrowed_at' => Carbon::now(), // Otomatis catat Jam, Tgl, Bln, Thn sekarang
         ]);
 
-        return response()->json($loan, 201);
+        // Kurangi stok buku
+        $book->decrement('stok');
+
+        return response()->json([
+            'message' => 'Berhasil meminjam buku!',
+            'data' => $loan
+        ], 201);
+    }
+
+    // 3. Fitur KEMBALIKAN BUKU
+    public function update(Request $request, $id)
+    {
+        $loan = Loan::findOrFail($id);
+        
+        // Update tanggal kembali
+        $loan->update([
+            'returned_at' => Carbon::now() // Otomatis catat waktu pengembalian
+        ]);
+
+        // Tambah lagi stok bukunya
+        Book::find($loan->book_id)->increment('stok');
+
+        return response()->json(['message' => 'Buku telah dikembalikan, terima kasih!']);
     }
 }
