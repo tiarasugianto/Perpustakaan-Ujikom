@@ -25,26 +25,23 @@ export default function Login({ setAuth }) {
       });
   };
 
-  // 🟢 Fungsi Pop-up Lupa Password - VERSI ANTI-AUTOFILL TOTAL
+  // 🟢 Fungsi Pop-up Lupa Password - DIPERBAIKI POSISINYA
   const handleForgotPassword = async () => {
     const { value: formValues } = await Swal.fire({
       title: 'Reset Password',
       html:
         '<p style="font-size:13px; color:#6B7280; margin-bottom:15px;">Masukkan email akunmu dan password baru.</p>' +
         
-        // --- TRIK JEBAKAN UNTUK CHROME (Hidden Inputs) ---
-        '<input type="text" style="display:none" aria-hidden="true">' +
-        '<input type="password" style="display:none" aria-hidden="true">' +
-        
+        // --- CONTAINER UTAMA BIKIN TENGAH ---
         '<div style="display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%;">' +
           
-          // 1. Input Email (Ganti ID biar Chrome gak kenal)
-          '<input id="real-email" type="email" class="swal2-input" placeholder="Email Terdaftar" autocomplete="new-password" style="width: 280px; margin: 0; padding: 10px;">' +
+          // 1. Input Email (Kasih lebar pasti biar sama)
+          '<input id="reset-email" class="swal2-input" placeholder="Email Terdaftar" autocomplete="off" value="" style="width: 280px; margin: 0; padding: 10px;">' +
           
-          // 2. Pembungkus Password
+          // 2. Pembungkus Password (Bikin relatif untuk mata)
           '<div style="position:relative; width: 280px; margin: 0;">' +
-            '<input id="real-pass" class="swal2-input" type="password" placeholder="Password Baru" style="width:100%; margin: 0; padding: 10px 40px 10px 10px;" autocomplete="new-password">' +
-            // Icon Mata
+            '<input id="reset-pass" class="swal2-input" type="password" placeholder="Password Baru" style="width:100%; margin: 0; padding: 10px 40px 10px 10px;">' +
+            // Icon Mata (Posisikan di dalam input)
             '<span id="toggle-reset-pass" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); cursor:pointer; font-size:16px; color:#9CA3AF; z-index:10;">👁️</span>' +
           '</div>' +
         '</div>',
@@ -54,24 +51,21 @@ export default function Login({ setAuth }) {
       confirmButtonText: 'Update Password',
       showCancelButton: true,
       
+      // Logika Mata (Sama seperti kemarin)
       didOpen: () => {
-        // Paksa kosongkan lagi setelah modal terbuka (Double Security)
-        document.getElementById('real-email').value = "";
-        document.getElementById('real-pass').value = "";
-
-        const passwordInput = document.getElementById('real-pass');
+        const passwordInput = document.getElementById('reset-pass');
         const toggleIcon = document.getElementById('toggle-reset-pass');
         toggleIcon.addEventListener('click', () => {
           const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
           passwordInput.setAttribute('type', type);
-          toggleIcon.textContent = type === 'password' ? '👁️' : '🔒';
+          toggleIcon.textContent = type === 'password' ? '👁️‍🗨️' : '👁️';
           toggleIcon.style.color = type === 'password' ? '#9CA3AF' : '#DB2777';
         });
       },
       
       preConfirm: () => {
-        const emailVal = document.getElementById('real-email').value;
-        const passVal = document.getElementById('real-pass').value;
+        const emailVal = document.getElementById('reset-email').value;
+        const passVal = document.getElementById('reset-pass').value;
         if (!emailVal || !passVal) {
           Swal.showValidationMessage('Email dan Password wajib diisi!');
         }
@@ -102,7 +96,7 @@ export default function Login({ setAuth }) {
           </p>
         )}
 
-        <form onSubmit={handleSubmit} autoComplete="off">
+        <form onSubmit={handleSubmit}>
           <input
             type="email"
             placeholder="Email"
