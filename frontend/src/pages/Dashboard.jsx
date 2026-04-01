@@ -1,10 +1,12 @@
 import Books from "./Books";
+import Users from "./Users"; // 🟢 Import komponen Users baru
 import { useEffect, useState } from "react";
 import { getLoans, returnBook } from "../services/api";
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
   const [loans, setLoans] = useState([]);
+  const [activeTab, setActiveTab] = useState("books"); // 🟢 State untuk navigasi (default: books)
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -17,7 +19,6 @@ export default function Dashboard() {
 
   const loadLoans = (currentUser) => {
     getLoans().then((res) => {
-      // Jika admin lihat semua, jika user cuma lihat punya sendiri
       const myLoans = currentUser.role === "admin" 
         ? res.data 
         : res.data.filter((l) => l.user_id === currentUser.id);
@@ -29,7 +30,7 @@ export default function Dashboard() {
     if (!window.confirm("Kembalikan buku ini?")) return;
     returnBook(id).then(() => {
       alert("Buku berhasil dikembalikan!");
-      window.location.reload(); // Refresh otomatis agar stok & riwayat sinkron
+      window.location.reload();
     });
   };
 
@@ -67,13 +68,57 @@ export default function Dashboard() {
       {/* KONTEN UTAMA */}
       <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "0 20px 40px" }}>
         
-        {/* SECTION DAFTAR BUKU */}
-        <h2 style={{ color: "#1F2937", marginBottom: "25px", borderBottom: "3px solid #FBCFE8", paddingBottom: "12px", display: "inline-block", fontSize: "20px", fontWeight: "600" }}>
-          Daftar Buku Tersedia
-        </h2>
-        <Books isAdmin={user?.role === "admin"} />
+        {/* 🟢 TOMBOL NAVIGASI SEDERHANA */}
+        <div style={{ marginBottom: "25px", display: "flex", gap: "10px" }}>
+          <button 
+            onClick={() => setActiveTab("books")} 
+            style={{ 
+              background: activeTab === "books" ? "#DB2777" : "white", 
+              color: activeTab === "books" ? "white" : "#DB2777", 
+              border: "1px solid #DB2777", 
+              padding: "10px 20px", 
+              borderRadius: "12px", 
+              cursor: "pointer",
+              fontWeight: "600",
+              transition: "0.3s"
+            }}
+          >
+            📚 Daftar Buku
+          </button>
+          
+          {/* Tombol Kelola Anggota hanya muncul untuk Admin */}
+          {user?.role === "admin" && (
+            <button 
+              onClick={() => setActiveTab("users")} 
+              style={{ 
+                background: activeTab === "users" ? "#DB2777" : "white", 
+                color: activeTab === "users" ? "white" : "#DB2777", 
+                border: "1px solid #DB2777", 
+                padding: "10px 20px", 
+                borderRadius: "12px", 
+                cursor: "pointer",
+                fontWeight: "600",
+                transition: "0.3s"
+              }}
+            >
+              👥 Kelola Anggota
+            </button>
+          )}
+        </div>
 
-        {/* 🟢 SECTION RIWAYAT PEMINJAMAN */}
+        {/* 🟢 KONTEN DINAMIS (Berubah sesuai Tab) */}
+        {activeTab === "books" ? (
+          <>
+            <h2 style={{ color: "#1F2937", marginBottom: "25px", borderBottom: "3px solid #FBCFE8", paddingBottom: "12px", display: "inline-block", fontSize: "20px", fontWeight: "600" }}>
+              Daftar Buku Tersedia
+            </h2>
+            <Books isAdmin={user?.role === "admin"} />
+          </>
+        ) : (
+          <Users /> 
+        )}
+
+        {/* 🟢 SECTION RIWAYAT PEMINJAMAN (Tetap muncul di bawah) */}
         <div style={{ marginTop: "50px", background: "white", padding: "25px", borderRadius: "20px", boxShadow: "0 4px 15px rgba(0,0,0,0.05)" }}>
           <h3 style={{ color: "#DB2777", marginBottom: "20px", fontSize: "18px", display: "flex", alignItems: "center", gap: "10px" }}>
             <span>📋</span> Riwayat Peminjaman Buku
@@ -97,14 +142,10 @@ export default function Dashboard() {
                     <tr key={loan.id} style={{ borderBottom: "1px solid #FDF2F8" }}>
                       <td style={{ padding: "12px" }}><strong>{loan.book?.judul || "Buku Dihapus"}</strong></td>
                       <td style={{ padding: "12px" }}>{loan.user?.name}</td>
-                      
-                      {/* WAKTU PINJAM */}
                       <td style={{ padding: "12px" }}>
                         <div style={{ fontWeight: "500" }}>{new Date(loan.borrowed_at).toLocaleDateString('id-ID', { dateStyle: 'medium' })}</div>
                         <div style={{ fontSize: "11px", color: "#9CA3AF" }}>Pukul {new Date(loan.borrowed_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })} WIB</div>
                       </td>
-
-                      {/* WAKTU KEMBALI */}
                       <td style={{ padding: "12px" }}>
                         {loan.returned_at ? (
                           <>
@@ -115,8 +156,6 @@ export default function Dashboard() {
                           <span style={{ color: "#F59E0B", fontStyle: "italic", fontSize: "12px" }}>Belum dikembalikan</span>
                         )}
                       </td>
-
-                      {/* AKSI */}
                       <td style={{ padding: "12px" }}>
                         {loan.returned_at ? (
                           <span style={{ color: "#059669", background: "#D1FAE5", padding: "5px 12px", borderRadius: "20px", fontSize: "11px", fontWeight: "600" }}>
@@ -125,7 +164,7 @@ export default function Dashboard() {
                         ) : (
                           <button 
                             onClick={() => handleReturn(loan.id)} 
-                            style={{ background: "#DB2777", color: "white", border: "none", padding: "8px 14px", borderRadius: "10px", cursor: "pointer", fontSize: "12px", fontWeight: "500", boxShadow: "0 2px 5px rgba(219, 39, 119, 0.2)" }}
+                            style={{ background: "#DB2777", color: "white", border: "none", padding: "8px 14px", borderRadius: "10px", cursor: "pointer", fontSize: "12px", fontWeight: "500" }}
                           >
                             Kembalikan
                           </button>

@@ -20,3 +20,10 @@ Route::delete('/books/{id}', [BookController::class, 'destroy']);
 // ✅ auth routes
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
+
+Route::get('/users', function() {
+    return \App\Models\User::all();
+});
+Route::delete('/users/{id}', function($id) {
+    return \App\Models\User::destroy($id);
+});

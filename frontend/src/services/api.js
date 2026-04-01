@@ -28,4 +28,8 @@ export const getLoans = () => api.get("/loans");
 export const borrowBook = (data) => api.post("/loans", data);
 export const returnBook = (id) => api.put(`/loans/${id}`);
 
+// --- API USERS (ANGGOTA) ---
+export const getUsers = () => api.get("/users");
+export const deleteUser = (id) => api.delete(`/users/${id}`);
+
 export default api;
