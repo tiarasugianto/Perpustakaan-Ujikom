@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import api, { getUsers, deleteUser } from "../services/api";
+import { getUsers, createUser, updateUser, deleteUser } from "../services/api";
 import Swal from "sweetalert2";
 
 export default function Users() {
   const [users, setUsers] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const loadUsers = () => {
     getUsers().then(res => setUsers(res.data)).catch(err => console.error(err));
@@ -11,6 +12,63 @@ export default function Users() {
 
   useEffect(() => { loadUsers(); }, []);
 
+  // 🔍 Fitur Cari Anggota
+  const filteredUsers = users.filter(u => 
+    u.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    u.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // ➕ Fitur Tambah Anggota
+  const handleAdd = async () => {
+    const { value: formValues } = await Swal.fire({
+      title: 'Tambah Anggota Baru',
+      html:
+        '<input id="u-name" class="swal2-input" placeholder="Nama Lengkap">' +
+        '<input id="u-email" class="swal2-input" placeholder="Email">' +
+        '<input id="u-pass" class="swal2-input" type="password" placeholder="Password">',
+      confirmButtonColor: '#DB2777',
+      showCancelButton: true,
+      preConfirm: () => [
+        document.getElementById('u-name').value,
+        document.getElementById('u-email').value,
+        document.getElementById('u-pass').value
+      ]
+    });
+
+    if (formValues && formValues[0]) {
+      createUser({ name: formValues[0], email: formValues[1], password: formValues[2], role: 'user' })
+        .then(() => {
+          Swal.fire('Berhasil', 'Anggota baru terdaftar', 'success');
+          loadUsers();
+        }).catch(() => Swal.fire('Gagal', 'Email mungkin sudah terdaftar', 'error'));
+    }
+  };
+
+  // ✏️ Fitur Edit Anggota
+  const handleEdit = async (user) => {
+    const { value: formValues } = await Swal.fire({
+      title: 'Edit Data Anggota',
+      html:
+        `<input id="u-name" class="swal2-input" value="${user.name}" placeholder="Nama">` +
+        `<input id="u-email" class="swal2-input" value="${user.email}" placeholder="Email">`,
+      confirmButtonColor: '#3B82F6',
+      showCancelButton: true,
+      preConfirm: () => [
+        document.getElementById('u-name').value,
+        document.getElementById('u-email').value
+      ]
+    });
+
+    if (formValues) {
+      updateUser(user.id, { name: formValues[0], email: formValues[1] })
+        .then(() => {
+          Swal.fire('Updated!', 'Data berhasil diubah', 'success');
+          loadUsers();
+        });
+    }
+  };
+
+  // 🗑️ Fitur Hapus Anggota
   const handleDelete = (id) => {
     Swal.fire({
       title: 'Hapus Anggota?',
@@ -22,7 +80,7 @@ export default function Users() {
     }).then((result) => {
       if (result.isConfirmed) {
         deleteUser(id).then(() => {
-          Swal.fire('Berhasil', 'Anggota telah dihapus', 'success');
+          Swal.fire('Terhapus', 'Anggota telah dihapus', 'success');
           loadUsers();
         });
       }
@@ -30,34 +88,53 @@ export default function Users() {
   };
 
   return (
-    <div style={{ background: "white", padding: "20px", borderRadius: "15px", boxShadow: "0 4px 10px rgba(0,0,0,0.05)" }}>
-      <h3 style={{ color: "#DB2777", marginBottom: "20px" }}>👥 Kelola Anggota (User)</h3>
-      <table style={{ width: "100%", borderCollapse: "collapse" }}>
-        <thead>
-          <tr style={{ textAlign: "left", borderBottom: "2px solid #FDF2F8" }}>
-            <th style={{ padding: "10px" }}>Nama</th>
-            <th style={{ padding: "10px" }}>Email</th>
-            <th style={{ padding: "10px" }}>Role</th>
-            <th style={{ padding: "10px" }}>Aksi</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map(u => (
-            <tr key={u.id} style={{ borderBottom: "1px solid #FDF2F8" }}>
-              <td style={{ padding: "10px" }}>{u.name}</td>
-              <td style={{ padding: "10px" }}>{u.email}</td>
-              <td style={{ padding: "10px" }}>
-                <span style={{ fontSize: "11px", background: u.role === 'admin' ? "#FBCFE8" : "#E5E7EB", padding: "3px 8px", borderRadius: "10px" }}>
-                  {u.role}
-                </span>
-              </td>
-              <td style={{ padding: "10px" }}>
-                <button onClick={() => handleDelete(u.id)} style={{ background: "none", border: "none", cursor: "pointer" }}>🗑️</button>
-              </td>
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "20px", gap: "10px", flexWrap: "wrap" }}>
+        <button onClick={handleAdd} style={{ background: "#059669", color: "white", border: "none", padding: "10px 15px", borderRadius: "10px", cursor: "pointer", fontWeight: "600" }}>
+          ➕ Tambah Anggota
+        </button>
+        
+        {/* Input Cari */}
+        <input 
+          type="text" 
+          placeholder="Cari nama atau email..." 
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{ padding: "10px", borderRadius: "10px", border: "1px solid #F9A8D4", outline: "none", width: "250px" }}
+        />
+      </div>
+
+      <div style={{ overflowX: "auto" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <thead>
+            <tr style={{ textAlign: "left", borderBottom: "2px solid #FDF2F8", color: "#6B7280" }}>
+              <th style={{ padding: "12px" }}>Nama</th>
+              <th style={{ padding: "12px" }}>Email</th>
+              <th style={{ padding: "12px" }}>Role</th>
+              <th style={{ padding: "12px" }}>Aksi</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {filteredUsers.map(u => (
+              <tr key={u.id} style={{ borderBottom: "1px solid #FDF2F8" }}>
+                <td style={{ padding: "12px", fontWeight: "500" }}>{u.name}</td>
+                <td style={{ padding: "12px" }}>{u.email}</td>
+                <td style={{ padding: "12px" }}>
+                  <span style={{ fontSize: "11px", background: u.role === 'admin' ? "#FBCFE8" : "#E5E7EB", color: u.role === 'admin' ? "#DB2777" : "#4B5563", padding: "4px 10px", borderRadius: "10px", fontWeight: "bold" }}>
+                    {u.role.toUpperCase()}
+                  </span>
+                </td>
+                <td style={{ padding: "12px" }}>
+                  <div style={{ display: "flex", gap: "10px" }}>
+                    <button onClick={() => handleEdit(u)} style={{ background: "#3B82F6", color: "white", border: "none", borderRadius: "5px", padding: "5px 8px", cursor: "pointer" }}>✏️</button>
+                    <button onClick={() => handleDelete(u.id)} style={{ background: "#EF4444", color: "white", border: "none", borderRadius: "5px", padding: "5px 8px", cursor: "pointer" }}>🗑️</button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

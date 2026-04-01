@@ -27,3 +27,9 @@ Route::get('/users', function() {
 Route::delete('/users/{id}', function($id) {
     return \App\Models\User::destroy($id);
 });
+// Tambahkan di api.php
+Route::put('/users/{id}', function(Request $request, $id) {
+    $user = \App\Models\User::find($id);
+    $user->update($request->all());
+    return $user;
+});

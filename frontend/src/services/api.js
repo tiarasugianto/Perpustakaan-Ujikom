@@ -29,7 +29,10 @@ export const borrowBook = (data) => api.post("/loans", data);
 export const returnBook = (id) => api.put(`/loans/${id}`);
 
 // --- API USERS (ANGGOTA) ---
+// Tambahkan ini di api.js kalau belum ada
 export const getUsers = () => api.get("/users");
+export const createUser = (data) => api.post("/register", data); // Pakai route register yang sudah ada
+export const updateUser = (id, data) => api.put(`/users/${id}`, data);
 export const deleteUser = (id) => api.delete(`/users/${id}`);
 
 export default api;
