@@ -293,3 +293,29 @@ td {
   margin-bottom: 28px;
   box-shadow: 0 10px 30px rgba(255, 105, 180, 0.2);
 }
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+.btn-logout-pink {
+  padding: 8px 16px; border-radius: 10px; border: 1px solid #F9A8D4;
+  background: white; color: #DB2777; cursor: pointer; transition: all 0.2s;
+}
+.btn-logout-pink:hover { background: #FDF2F8; border-color: #DB2777; }
+
+.book-card-pink { transition: all 0.3s ease; }
+.book-card-pink:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 30px rgba(219, 39, 119, 0.1);
+  border-color: #F9A8D4;
+}
+
+.btn-action-pink {
+  padding: 6px 12px; background: #DB2777; color: white; border: none; 
+  borderRadius: 8px; cursor: pointer; transition: 0.2s;
+}
+.btn-action-pink:hover { background: #BE185D; }
+
+.btn-action-green {
+  padding: 10px 20px; background: #059669; color: white; border: none;
+  borderRadius: 10px; cursor: pointer; transition: 0.2s;
+}
+.btn-action-green:hover { background: #047857; }
