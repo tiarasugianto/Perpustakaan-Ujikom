@@ -15,35 +15,27 @@ class BookController extends Controller
     }
 
     // simpan buku
-    public function store(Request $request)
-    {
-        $data = $request->validate([
-            'judul' => 'required',
-            'penulis' => 'required',
-            'penerbit' => 'required',
-            'tahun' => 'required|integer',
-            'stok' => 'required|integer',
-        ]);
+   public function store(Request $request) {
+    $validated = $request->validate([
+        'judul' => 'required',
+        'penulis' => 'required',
+        'penerbit' => 'required',
+        'tahun' => 'required|integer',
+        'stok' => 'required|integer',
+    ]);
+    $book = \App\Models\Book::create($validated);
+    return response()->json($book, 201);
+}
 
-        return Book::create($data);
-    }
+public function update(Request $request, $id) {
+    $book = \App\Models\Book::findOrFail($id);
+    $book->update($request->all());
+    return response()->json($book);
+}
 
-    // update buku
-    public function update(Request $request, $id)
-    {
-        $book = Book::findOrFail($id);
-        $book->update($request->all());
+public function destroy($id) {
+    \App\Models\Book::destroy($id);
+    return response()->json(['message' => 'Buku berhasil dihapus']);
 
-        return $book;
-    }
-
-    // hapus buku
-    public function destroy($id)
-    {
-        Book::destroy($id);
-
-        return response()->json([
-            'message' => 'Buku berhasil dihapus'
-        ]);
     }
 }
