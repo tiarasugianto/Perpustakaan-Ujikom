@@ -9,25 +9,22 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
+    // --- FUNGSI LOGIN ---
     public function login(Request $request)
     {
-        // 1. Validasi input (Sangat disarankan agar tidak error jika input kosong)
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
         ]);
 
-        // 2. Cari user
         $user = User::where('email', $request->email)->first();
 
-        // 3. Cek user & Password (Hash::check wajib ada)
         if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json([
                 'message' => 'Email atau password salah'
             ], 401);
         }
 
-        // 4. Kirim response yang diharapkan React
         return response()->json([
             'message' => 'Login berhasil',
             'user' => [
@@ -38,4 +35,30 @@ class AuthController extends Controller
             ]
         ], 200);
     }
-}
+
+    // --- FUNGSI REGISTER (Sekarang sudah di DALAM class) ---
+    public function register(Request $request)
+    {
+        // 1. Validasi inputan
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|unique:users',
+            'password' => 'required|string|min:8',
+            'role' => 'required'
+        ]);
+
+        // 2. Simpan ke database
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => $request->role,
+        ]);
+
+        // 3. Kasih respon berhasil
+        return response()->json([
+            'message' => 'User berhasil didaftarkan!',
+            'user' => $user
+        ], 201);
+    }
+} // <--- Kurung kurawal penutup class harus paling bawah
