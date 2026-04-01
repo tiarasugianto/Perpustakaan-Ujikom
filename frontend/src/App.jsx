@@ -1,33 +1,42 @@
+import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import { useState, useEffect } from "react"; // Tambahkan useEffect
 
 function App() {
-  const userData = localStorage.getItem("user");
+  const [auth, setAuth] = useState(localStorage.getItem("user") !== null);
 
-  let user = null;
-
-  try {
-    if (userData && userData !== "undefined") {
-      user = JSON.parse(userData);
+  // Fungsi ini memastikan jika ada perubahan status, App.jsx tahu
+  useEffect(() => {
+    const user = localStorage.getItem("user");
+    if (user) {
+      setAuth(true);
+    } else {
+      setAuth(false);
     }
-  } catch (error) {
-    console.error("Error parsing user:", error);
-    user = null;
-  }
+  }, []);
 
-  const path = window.location.pathname;
+  return (
+    <Routes>
+      <Route 
+        path="/" 
+        element={auth ? <Navigate to="/dashboard" /> : <Login setAuth={setAuth} />} 
+      />
+      
+      <Route 
+        path="/login" 
+        element={auth ? <Navigate to="/dashboard" /> : <Login setAuth={setAuth} />} 
+      />
 
-  // belum login
-  if (!user) {
-    return <Login />;
-  }
-
-  // sudah login
-  if (path === "/dashboard") {
-    return <Dashboard />;
-  }
-
-  return <Dashboard />;
+      <Route 
+        path="/dashboard" 
+        element={auth ? <Dashboard /> : <Navigate to="/login" />} 
+      />
+      
+      {/* Tambahkan route cadangan jika path tidak ditemukan */}
+      <Route path="*" element={<Navigate to="/" />} />
+    </Routes>
+  );
 }
 
 export default App;
