@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { login, forgotPassword } from "../services/api"; // 🟢 Import forgotPassword
+import { login, forgotPassword } from "../services/api";
 import Swal from "sweetalert2";
 import "./Login.css";
 
@@ -15,30 +15,43 @@ export default function Login({ setAuth }) {
 
     login({ email, password })
       .then((res) => {
-        console.log("Login Berhasil:", res.data);
         localStorage.setItem("user", JSON.stringify(res.data.user));
         setAuth(true);
         window.location.href = "/dashboard";
       })
       .catch((err) => {
-        console.error("Login Gagal:", err.response?.data);
         const message = err.response?.data?.message || "Email atau password salah";
         setError(message);
       });
   };
 
-  // 🟢 Fungsi Pop-up Lupa Password
+  // 🟢 Fungsi Pop-up Lupa Password dengan Fitur Mata & Anti-Autofill
   const handleForgotPassword = async () => {
     const { value: formValues } = await Swal.fire({
       title: 'Reset Password',
       html:
         '<p style="font-size:13px; color:#6B7280; margin-bottom:10px;">Masukkan email akunmu dan password baru.</p>' +
-        '<input id="reset-email" class="swal2-input" placeholder="Email Terdaftar">' +
-        '<input id="reset-pass" class="swal2-input" type="password" placeholder="Password Baru (min. 8 Karakter)">',
+        // Input Email (Bikin kosong & matikan autofill)
+        '<input id="reset-email" class="swal2-input" placeholder="Email Terdaftar" autocomplete="off" value="">' +
+        // Input Password dengan pembungkus agar bisa ada icon mata
+        '<div style="position:relative; width: 260px; margin: 0 auto;">' +
+          '<input id="reset-pass" class="swal2-input" type="password" placeholder="Password Baru" style="width:100%" autocomplete="new-password">' +
+          '<span id="toggle-reset-pass" style="position:absolute; right:10px; top:25px; cursor:pointer; font-size:18px;">👁️</span>' +
+        '</div>',
       focusConfirm: false,
       confirmButtonColor: '#DB2777',
       confirmButtonText: 'Update Password',
       showCancelButton: true,
+      didOpen: () => {
+        // Logika Toggle Mata di dalam SweetAlert
+        const passwordInput = document.getElementById('reset-pass');
+        const toggleIcon = document.getElementById('toggle-reset-pass');
+        toggleIcon.addEventListener('click', () => {
+          const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+          passwordInput.setAttribute('type', type);
+          toggleIcon.textContent = type === 'password' ? '👁️' : '🔒';
+        });
+      },
       preConfirm: () => {
         const emailVal = document.getElementById('reset-email').value;
         const passVal = document.getElementById('reset-pass').value;
@@ -52,7 +65,7 @@ export default function Login({ setAuth }) {
     if (formValues) {
       forgotPassword({ email: formValues[0], password: formValues[1] })
         .then(() => {
-          Swal.fire('Berhasil!', 'Password sudah diganti. Silakan login kembali.', 'success');
+          Swal.fire('Berhasil!', 'Password sudah diganti. Silakan login.', 'success');
         })
         .catch((err) => {
           const msg = err.response?.data?.message || "Email tidak ditemukan";
@@ -105,7 +118,6 @@ export default function Login({ setAuth }) {
           </button>
         </form>
 
-        {/* 🟢 Link Lupa Password */}
         <p style={{ textAlign: "center", marginTop: "20px", fontSize: "13px", color: "#6B7280" }}>
           Lupa password? 
           <span 
