@@ -18,7 +18,7 @@ export default function Users() {
     u.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // ➕ Fitur Tambah Anggota
+  // ➕ Fitur Tambah Anggota (Sudah ditambahkan pengecekan error detail)
   const handleAdd = async () => {
     const { value: formValues } = await Swal.fire({
       title: 'Tambah Anggota Baru',
@@ -40,11 +40,17 @@ export default function Users() {
         .then(() => {
           Swal.fire('Berhasil', 'Anggota baru terdaftar', 'success');
           loadUsers();
-        }).catch(() => Swal.fire('Gagal', 'Email mungkin sudah terdaftar', 'error'));
+        })
+        .catch((err) => {
+          // 🟢 Menampilkan pesan error spesifik dari server
+          const errorMsg = err.response?.data?.message || "Email mungkin sudah terdaftar atau data tidak valid";
+          Swal.fire('Gagal', errorMsg, 'error');
+          console.error("Error Detail:", err.response?.data);
+        });
     }
   };
 
-  // ✏️ Fitur Edit Anggota
+  // ✏️ Fitur Edit Anggota (Sudah ditambahkan pengecekan error detail)
   const handleEdit = async (user) => {
     const { value: formValues } = await Swal.fire({
       title: 'Edit Data Anggota',
@@ -64,6 +70,10 @@ export default function Users() {
         .then(() => {
           Swal.fire('Updated!', 'Data berhasil diubah', 'success');
           loadUsers();
+        })
+        .catch((err) => {
+          const errorMsg = err.response?.data?.message || "Gagal memperbarui data";
+          Swal.fire('Gagal', errorMsg, 'error');
         });
     }
   };
@@ -94,7 +104,6 @@ export default function Users() {
           ➕ Tambah Anggota
         </button>
         
-        {/* Input Cari */}
         <input 
           type="text" 
           placeholder="Cari nama atau email..." 
