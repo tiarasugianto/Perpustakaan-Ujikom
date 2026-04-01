@@ -16,6 +16,7 @@ export default function Books({ isAdmin }) {
     loadBooks();
   }, []);
 
+  // 🔍 Logika Filter: Cari berdasarkan Judul atau Penulis
   const filteredBooks = books.filter((book) =>
     book.judul.toLowerCase().includes(searchTerm.toLowerCase()) ||
     book.penulis.toLowerCase().includes(searchTerm.toLowerCase())
@@ -28,9 +29,49 @@ export default function Books({ isAdmin }) {
       html:
         '<input id="swal-input1" class="swal2-input" placeholder="Judul Buku">' +
         '<input id="swal-input2" class="swal2-input" placeholder="Penulis">' +
-        '<input id="swal-input3" class="swal2-input" type="number" placeholder="Stok">',
+        '<input id="swal-input3" class="swal2-input" placeholder="Penerbit">' +
+        '<input id="swal-input4" class="swal2-input" type="number" placeholder="Stok">',
       focusConfirm: false,
       confirmButtonColor: '#DB2777',
+      showCancelButton: true,
+      preConfirm: () => {
+        return [
+          document.getElementById('swal-input1').value,
+          document.getElementById('swal-input2').value,
+          document.getElementById('swal-input3').value,
+          document.getElementById('swal-input4').value
+        ]
+      }
+    });
+
+    if (formValues && formValues[0]) {
+      createBook({ 
+        judul: formValues[0], 
+        penulis: formValues[1], 
+        penerbit: formValues[2], 
+        tahun: 2026, 
+        stok: formValues[3] 
+      })
+      .then(() => {
+        Swal.fire('Berhasil!', 'Buku sudah ditambahkan.', 'success');
+        loadBooks();
+      });
+    }
+  };
+
+  // 2. EDIT BUKU (Bisa Edit Judul, Penerbit, & Stok)
+  const handleEdit = async (book) => {
+    const { value: formValues } = await Swal.fire({
+      title: 'Edit Buku',
+      html:
+        `<label style="display:block; text-align:left; font-size:12px; margin:10px 0 0 25px; color:#6B7280">Judul Buku:</label>` +
+        `<input id="swal-input1" class="swal2-input" value="${book.judul}">` +
+        `<label style="display:block; text-align:left; font-size:12px; margin:10px 0 0 25px; color:#6B7280">Penerbit:</label>` +
+        `<input id="swal-input2" class="swal2-input" value="${book.penerbit || ''}">` +
+        `<label style="display:block; text-align:left; font-size:12px; margin:10px 0 0 25px; color:#6B7280">Jumlah Stok:</label>` +
+        `<input id="swal-input3" class="swal2-input" type="number" value="${book.stok}">`,
+      confirmButtonText: 'Update',
+      confirmButtonColor: '#3B82F6',
       showCancelButton: true,
       preConfirm: () => {
         return [
@@ -41,43 +82,21 @@ export default function Books({ isAdmin }) {
       }
     });
 
-    if (formValues && formValues[0]) {
-      createBook({ judul: formValues[0], penulis: formValues[1], penerbit: "PerpusDigi", tahun: 2026, stok: formValues[2] })
-        .then(() => {
-          Swal.fire('Berhasil!', 'Buku sudah ditambahkan.', 'success');
-          loadBooks();
-        });
-    }
-  };
-
-  // 2. EDIT BUKU (SweetAlert Tengah)
-  const handleEdit = async (book) => {
-    const { value: formValues } = await Swal.fire({
-      title: 'Edit Buku',
-      html:
-        `<input id="swal-input1" class="swal2-input" placeholder="Judul" value="${book.judul}">` +
-        `<input id="swal-input2" class="swal2-input" placeholder="Stok" type="number" value="${book.stok}">`,
-      confirmButtonText: 'Update',
-      confirmButtonColor: '#3B82F6',
-      showCancelButton: true,
-      preConfirm: () => {
-        return [
-          document.getElementById('swal-input1').value,
-          document.getElementById('swal-input2').value
-        ]
-      }
-    });
-
     if (formValues) {
-      updateBook(book.id, { ...book, judul: formValues[0], stok: formValues[1] })
-        .then(() => {
-          Swal.fire('Updated!', 'Data buku diperbarui.', 'success');
-          loadBooks();
-        });
+      updateBook(book.id, { 
+        ...book, 
+        judul: formValues[0], 
+        penerbit: formValues[1], 
+        stok: formValues[2] 
+      })
+      .then(() => {
+        Swal.fire('Updated!', 'Data buku diperbarui.', 'success');
+        loadBooks();
+      });
     }
   };
 
-  // 3. HAPUS BUKU (SweetAlert Tengah)
+  // 3. HAPUS BUKU
   const handleDelete = (id) => {
     Swal.fire({
       title: 'Yakin mau hapus?',
@@ -85,7 +104,6 @@ export default function Books({ isAdmin }) {
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#EF4444',
-      cancelButtonColor: '#6B7280',
       confirmButtonText: 'Ya, Hapus!'
     }).then((result) => {
       if (result.isConfirmed) {
@@ -97,11 +115,10 @@ export default function Books({ isAdmin }) {
     });
   };
 
-  // 4. PINJAM BUKU (SweetAlert Tengah)
+  // 4. PINJAM BUKU
   const handleBorrow = (bookId) => {
     Swal.fire({
       title: 'Pinjam Buku?',
-      text: "Pastikan kamu merawat buku ini ya!",
       icon: 'question',
       showCancelButton: true,
       confirmButtonColor: '#DB2777',
@@ -148,6 +165,7 @@ export default function Books({ isAdmin }) {
                 <h3 style={{ margin: 0, fontSize: "16px", fontWeight: "600" }}>{book.judul}</h3>
               </div>
               <p style={{ fontSize: "13px", color: "#6B7280", margin: "5px 0" }}>✍️ {book.penulis}</p>
+              <p style={{ fontSize: "12px", color: "#9CA3AF" }}>🏢 {book.penerbit || '-'}</p>
               <div style={{ marginTop: "auto", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <span style={{ fontSize: "11px", background: book.stok > 0 ? "#D1FAE5" : "#FEE2E2", color: book.stok > 0 ? "#059669" : "#DC2626", padding: "4px 8px", borderRadius: "99px" }}>
                   Stok: {book.stok}
