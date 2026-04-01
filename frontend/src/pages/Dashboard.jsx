@@ -1,12 +1,12 @@
 import Books from "./Books";
-import Users from "./Users"; // 🟢 Import komponen Users baru
+import Users from "./Users";
 import { useEffect, useState } from "react";
 import { getLoans, returnBook } from "../services/api";
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
   const [loans, setLoans] = useState([]);
-  const [activeTab, setActiveTab] = useState("books"); // 🟢 State untuk navigasi (default: books)
+  const [activeTab, setActiveTab] = useState("books"); // State navigasi
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -50,9 +50,7 @@ export default function Dashboard() {
           <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
             {user && (
               <div style={{ textAlign: "right" }}>
-                <p style={{ margin: 0, color: "#4B5563", fontSize: "14px" }}>
-                  Halo, <strong>{user.name}</strong>
-                </p>
+                <p style={{ margin: 0, color: "#4B5563", fontSize: "14px" }}>Halo, <strong>{user.name}</strong></p>
                 <span style={{ fontSize: "11px", color: "#DB2777", background: "#FCE7F3", padding: "2px 8px", borderRadius: "10px", fontWeight: "600", textTransform: "uppercase" }}>
                   {user.role}
                 </span>
@@ -68,114 +66,107 @@ export default function Dashboard() {
       {/* KONTEN UTAMA */}
       <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "0 20px 40px" }}>
         
-        {/* 🟢 TOMBOL NAVIGASI SEDERHANA */}
-        <div style={{ marginBottom: "25px", display: "flex", gap: "10px" }}>
+        {/* 🟢 NAVIGASI TAB */}
+        <div style={{ marginBottom: "30px", display: "flex", gap: "12px", flexWrap: "wrap" }}>
           <button 
             onClick={() => setActiveTab("books")} 
             style={{ 
               background: activeTab === "books" ? "#DB2777" : "white", 
               color: activeTab === "books" ? "white" : "#DB2777", 
-              border: "1px solid #DB2777", 
-              padding: "10px 20px", 
-              borderRadius: "12px", 
-              cursor: "pointer",
-              fontWeight: "600",
-              transition: "0.3s"
+              border: "1px solid #DB2777", padding: "10px 20px", borderRadius: "12px", cursor: "pointer", fontWeight: "600" 
             }}
           >
-            📚 Daftar Buku
+            📖 Daftar Buku
           </button>
-          
-          {/* Tombol Kelola Anggota hanya muncul untuk Admin */}
+
           {user?.role === "admin" && (
             <button 
               onClick={() => setActiveTab("users")} 
               style={{ 
                 background: activeTab === "users" ? "#DB2777" : "white", 
                 color: activeTab === "users" ? "white" : "#DB2777", 
-                border: "1px solid #DB2777", 
-                padding: "10px 20px", 
-                borderRadius: "12px", 
-                cursor: "pointer",
-                fontWeight: "600",
-                transition: "0.3s"
+                border: "1px solid #DB2777", padding: "10px 20px", borderRadius: "12px", cursor: "pointer", fontWeight: "600" 
               }}
             >
               👥 Kelola Anggota
             </button>
           )}
+
+          <button 
+            onClick={() => setActiveTab("loans")} 
+            style={{ 
+              background: activeTab === "loans" ? "#DB2777" : "white", 
+              color: activeTab === "loans" ? "white" : "#DB2777", 
+              border: "1px solid #DB2777", padding: "10px 20px", borderRadius: "12px", cursor: "pointer", fontWeight: "600" 
+            }}
+          >
+            📋 Riwayat Pinjam
+          </button>
         </div>
 
-        {/* 🟢 KONTEN DINAMIS (Berubah sesuai Tab) */}
-        {activeTab === "books" ? (
-          <>
-            <h2 style={{ color: "#1F2937", marginBottom: "25px", borderBottom: "3px solid #FBCFE8", paddingBottom: "12px", display: "inline-block", fontSize: "20px", fontWeight: "600" }}>
-              Daftar Buku Tersedia
-            </h2>
-            <Books isAdmin={user?.role === "admin"} />
-          </>
-        ) : (
-          <Users /> 
-        )}
+        {/* 🟢 ISI KONTEN BERDASARKAN TAB */}
+        <div style={{ background: "white", padding: "30px", borderRadius: "20px", boxShadow: "0 4px 15px rgba(0,0,0,0.05)" }}>
+          
+          {activeTab === "books" && (
+            <>
+              <h2 style={{ color: "#1F2937", marginBottom: "25px", borderBottom: "3px solid #FBCFE8", paddingBottom: "12px", fontSize: "20px" }}>Daftar Buku Tersedia</h2>
+              <Books isAdmin={user?.role === "admin"} />
+            </>
+          )}
 
-        {/* 🟢 SECTION RIWAYAT PEMINJAMAN (Tetap muncul di bawah) */}
-        <div style={{ marginTop: "50px", background: "white", padding: "25px", borderRadius: "20px", boxShadow: "0 4px 15px rgba(0,0,0,0.05)" }}>
-          <h3 style={{ color: "#DB2777", marginBottom: "20px", fontSize: "18px", display: "flex", alignItems: "center", gap: "10px" }}>
-            <span>📋</span> Riwayat Peminjaman Buku
-          </h3>
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
-              <thead>
-                <tr style={{ textAlign: "left", borderBottom: "2px solid #FDF2F8", color: "#6B7280" }}>
-                  <th style={{ padding: "12px" }}>Judul Buku</th>
-                  <th style={{ padding: "12px" }}>Peminjam</th>
-                  <th style={{ padding: "12px" }}>Waktu Pinjam</th>
-                  <th style={{ padding: "12px" }}>Waktu Kembali</th>
-                  <th style={{ padding: "12px" }}>Status / Aksi</th>
-                </tr>
-              </thead>
-              <tbody>
-                {loans.length === 0 ? (
-                  <tr><td colSpan="5" style={{ textAlign: "center", padding: "30px", color: "#9CA3AF" }}>Belum ada riwayat peminjaman.</td></tr>
-                ) : (
-                  loans.map((loan) => (
-                    <tr key={loan.id} style={{ borderBottom: "1px solid #FDF2F8" }}>
-                      <td style={{ padding: "12px" }}><strong>{loan.book?.judul || "Buku Dihapus"}</strong></td>
-                      <td style={{ padding: "12px" }}>{loan.user?.name}</td>
-                      <td style={{ padding: "12px" }}>
-                        <div style={{ fontWeight: "500" }}>{new Date(loan.borrowed_at).toLocaleDateString('id-ID', { dateStyle: 'medium' })}</div>
-                        <div style={{ fontSize: "11px", color: "#9CA3AF" }}>Pukul {new Date(loan.borrowed_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })} WIB</div>
-                      </td>
-                      <td style={{ padding: "12px" }}>
-                        {loan.returned_at ? (
-                          <>
-                            <div style={{ fontWeight: "500", color: "#059669" }}>{new Date(loan.returned_at).toLocaleDateString('id-ID', { dateStyle: 'medium' })}</div>
-                            <div style={{ fontSize: "11px", color: "#9CA3AF" }}>Pukul {new Date(loan.returned_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })} WIB</div>
-                          </>
-                        ) : (
-                          <span style={{ color: "#F59E0B", fontStyle: "italic", fontSize: "12px" }}>Belum dikembalikan</span>
-                        )}
-                      </td>
-                      <td style={{ padding: "12px" }}>
-                        {loan.returned_at ? (
-                          <span style={{ color: "#059669", background: "#D1FAE5", padding: "5px 12px", borderRadius: "20px", fontSize: "11px", fontWeight: "600" }}>
-                            ✅ Selesai
-                          </span>
-                        ) : (
-                          <button 
-                            onClick={() => handleReturn(loan.id)} 
-                            style={{ background: "#DB2777", color: "white", border: "none", padding: "8px 14px", borderRadius: "10px", cursor: "pointer", fontSize: "12px", fontWeight: "500" }}
-                          >
-                            Kembalikan
-                          </button>
-                        )}
-                      </td>
+          {activeTab === "users" && user?.role === "admin" && (
+            <Users />
+          )}
+
+          {activeTab === "loans" && (
+            <div>
+              <h2 style={{ color: "#1F2937", marginBottom: "25px", borderBottom: "3px solid #FBCFE8", paddingBottom: "12px", fontSize: "20px" }}>📋 Riwayat Peminjaman Buku</h2>
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "14px" }}>
+                  <thead>
+                    <tr style={{ textAlign: "left", borderBottom: "2px solid #FDF2F8", color: "#6B7280" }}>
+                      <th style={{ padding: "12px" }}>Buku</th>
+                      <th style={{ padding: "12px" }}>Peminjam</th>
+                      <th style={{ padding: "12px" }}>Waktu Pinjam</th>
+                      <th style={{ padding: "12px" }}>Waktu Kembali</th>
+                      <th style={{ padding: "12px" }}>Aksi</th>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                  </thead>
+                  <tbody>
+                    {loans.length === 0 ? (
+                      <tr><td colSpan="5" style={{ textAlign: "center", padding: "30px", color: "#9CA3AF" }}>Belum ada data peminjaman.</td></tr>
+                    ) : (
+                      loans.map((loan) => (
+                        <tr key={loan.id} style={{ borderBottom: "1px solid #FDF2F8" }}>
+                          <td style={{ padding: "12px" }}><strong>{loan.book?.judul || "Buku Dihapus"}</strong></td>
+                          <td style={{ padding: "12px" }}>{loan.user?.name}</td>
+                          <td style={{ padding: "12px" }}>
+                            {new Date(loan.borrowed_at).toLocaleDateString('id-ID', { dateStyle: 'medium' })}<br/>
+                            <small style={{color: '#9CA3AF'}}>{new Date(loan.borrowed_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })} WIB</small>
+                          </td>
+                          <td style={{ padding: "12px" }}>
+                            {loan.returned_at ? (
+                              <>
+                                {new Date(loan.returned_at).toLocaleDateString('id-ID', { dateStyle: 'medium' })}<br/>
+                                <small style={{color: '#9CA3AF'}}>{new Date(loan.returned_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })} WIB</small>
+                              </>
+                            ) : <span style={{ color: "#F59E0B", fontSize: "12px" }}>Masih dipinjam</span>}
+                          </td>
+                          <td style={{ padding: "12px" }}>
+                            {loan.returned_at ? (
+                              <span style={{ color: "#059669", background: "#D1FAE5", padding: "4px 10px", borderRadius: "8px", fontWeight: "600" }}>Selesai</span>
+                            ) : (
+                              <button onClick={() => handleReturn(loan.id)} style={{ background: "#DB2777", color: "white", border: "none", padding: "8px 12px", borderRadius: "8px", cursor: "pointer" }}>Kembalikan</button>
+                            )}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </div>
 
       </div>
