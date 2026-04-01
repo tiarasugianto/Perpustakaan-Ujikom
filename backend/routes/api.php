@@ -33,3 +33,6 @@ Route::put('/users/{id}', function(Request $request, $id) {
     $user->update($request->all());
     return $user;
 });
+
+// Tambahkan di api.php
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);

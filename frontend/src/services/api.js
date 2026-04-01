@@ -35,4 +35,7 @@ export const createUser = (data) => api.post("/register", data); // Pakai route 
 export const updateUser = (id, data) => api.put(`/users/${id}`, data);
 export const deleteUser = (id) => api.delete(`/users/${id}`);
 
+// Tambahkan di api.js
+export const forgotPassword = (data) => api.post("/forgot-password", data);
+
 export default api;

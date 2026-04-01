@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    // --- FUNGSI LOGIN ---
+    // 1. FUNGSI LOGIN
     public function login(Request $request)
     {
         $request->validate([
@@ -36,10 +36,9 @@ class AuthController extends Controller
         ], 200);
     }
 
-    // --- FUNGSI REGISTER (Sekarang sudah di DALAM class) ---
+    // 2. FUNGSI REGISTER
     public function register(Request $request)
     {
-        // 1. Validasi inputan
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|unique:users',
@@ -47,7 +46,6 @@ class AuthController extends Controller
             'role' => 'required'
         ]);
 
-        // 2. Simpan ke database
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -55,10 +53,32 @@ class AuthController extends Controller
             'role' => $request->role,
         ]);
 
-        // 3. Kasih respon berhasil
         return response()->json([
             'message' => 'User berhasil didaftarkan!',
             'user' => $user
         ], 201);
     }
-} // <--- Kurung kurawal penutup class harus paling bawah
+
+    // 3. FUNGSI FORGOT PASSWORD (Sekarang sudah di dalam class)
+    public function forgotPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|min:8',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json(['message' => 'Email tidak terdaftar di sistem'], 404);
+        }
+
+        // Update password dengan Hash baru
+        $user->update([
+            'password' => Hash::make($request->password)
+        ]);
+
+        return response()->json(['message' => 'Password berhasil diperbarui!']);
+    }
+
+} // <--- KURUNG PENUTUP CLASS HARUS DI SINI (PALING BAWAH)
