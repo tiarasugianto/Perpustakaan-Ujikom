@@ -6,6 +6,14 @@ export default function Books({ isAdmin }) {
   const [books, setBooks] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
+  // --- PALET WARNA TIARA ---
+  const colors = {
+    cardCream: "#FFF9E6",   // Warna Soft Cream favorit kamu
+    deepPink: "#DB2777",    // Pink Tua (Tombol/Aksen)
+    softPink: "#FFC2E2",    // Pink Muda (Border)
+    textDark: "#4D2C3D",    // Teks Cokelat Tua
+  };
+
   const loadBooks = () => {
     getBooks()
       .then((res) => setBooks(res.data))
@@ -24,34 +32,29 @@ export default function Books({ isAdmin }) {
   const handleAdd = async () => {
     const { value: formValues } = await Swal.fire({
       title: 'Tambah Buku Baru',
+      background: colors.cardCream,
+      confirmButtonColor: colors.deepPink,
       html:
         '<input id="swal-input1" class="swal2-input" placeholder="Judul Buku">' +
         '<input id="swal-input2" class="swal2-input" placeholder="Penulis">' +
         '<input id="swal-input3" class="swal2-input" placeholder="Penerbit">' +
         '<input id="swal-input4" class="swal2-input" type="number" placeholder="Stok">',
       focusConfirm: false,
-      confirmButtonColor: '#DB2777',
       showCancelButton: true,
-      preConfirm: () => {
-        return [
-          document.getElementById('swal-input1').value,
-          document.getElementById('swal-input2').value,
-          document.getElementById('swal-input3').value,
-          document.getElementById('swal-input4').value
-        ]
-      }
+      preConfirm: () => [
+        document.getElementById('swal-input1').value,
+        document.getElementById('swal-input2').value,
+        document.getElementById('swal-input3').value,
+        document.getElementById('swal-input4').value
+      ]
     });
 
     if (formValues && formValues[0]) {
       createBook({ 
-        judul: formValues[0], 
-        penulis: formValues[1], 
-        penerbit: formValues[2], 
-        tahun: 2026, 
-        stok: formValues[3] 
-      })
-      .then(() => {
-        Swal.fire('Berhasil!', 'Buku sudah ditambahkan.', 'success');
+        judul: formValues[0], penulis: formValues[1], 
+        penerbit: formValues[2], tahun: 2026, stok: formValues[3] 
+      }).then(() => {
+        Swal.fire({ title: 'Berhasil!', icon: 'success', background: colors.cardCream, confirmButtonColor: colors.deepPink });
         loadBooks();
       });
     }
@@ -60,6 +63,8 @@ export default function Books({ isAdmin }) {
   const handleEdit = async (book) => {
     const { value: formValues } = await Swal.fire({
       title: 'Edit Buku',
+      background: colors.cardCream,
+      confirmButtonColor: "#3B82F6",
       html:
         `<label style="display:block; text-align:left; font-size:12px; margin:10px 0 0 25px; color:#6B7280">Judul Buku:</label>` +
         `<input id="swal-input1" class="swal2-input" value="${book.judul}">` +
@@ -68,26 +73,18 @@ export default function Books({ isAdmin }) {
         `<label style="display:block; text-align:left; font-size:12px; margin:10px 0 0 25px; color:#6B7280">Jumlah Stok:</label>` +
         `<input id="swal-input3" class="swal2-input" type="number" value="${book.stok}">`,
       confirmButtonText: 'Update',
-      confirmButtonColor: '#3B82F6',
       showCancelButton: true,
-      preConfirm: () => {
-        return [
-          document.getElementById('swal-input1').value,
-          document.getElementById('swal-input2').value,
-          document.getElementById('swal-input3').value
-        ]
-      }
+      preConfirm: () => [
+        document.getElementById('swal-input1').value,
+        document.getElementById('swal-input2').value,
+        document.getElementById('swal-input3').value
+      ]
     });
 
     if (formValues) {
-      updateBook(book.id, { 
-        ...book, 
-        judul: formValues[0], 
-        penerbit: formValues[1], 
-        stok: formValues[2] 
-      })
+      updateBook(book.id, { ...book, judul: formValues[0], penerbit: formValues[1], stok: formValues[2] })
       .then(() => {
-        Swal.fire('Updated!', 'Data buku diperbarui.', 'success');
+        Swal.fire({ title: 'Updated!', icon: 'success', background: colors.cardCream });
         loadBooks();
       });
     }
@@ -96,7 +93,7 @@ export default function Books({ isAdmin }) {
   const handleDelete = (id) => {
     Swal.fire({
       title: 'Yakin mau hapus?',
-      text: "Data buku ini akan hilang permanen!",
+      background: colors.cardCream,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#EF4444',
@@ -104,16 +101,14 @@ export default function Books({ isAdmin }) {
     }).then((result) => {
       if (result.isConfirmed) {
         deleteBook(id).then(() => {
-          Swal.fire('Terhapus!', 'Buku berhasil dihapus.', 'success');
+          Swal.fire({ title: 'Terhapus!', icon: 'success', background: colors.cardCream });
           loadBooks();
         });
       }
     });
   };
 
-  // 🟢 4. PINJAM BUKU (DENGAN BATAS WAKTU MAKSIMAL 7 HARI)
   const handleBorrow = async (bookId) => {
-    // Logika hitung tanggal (Hanya 1 minggu)
     const today = new Date().toISOString().split("T")[0];
     const nextWeek = new Date();
     nextWeek.setDate(nextWeek.getDate() + 7);
@@ -121,13 +116,14 @@ export default function Books({ isAdmin }) {
 
     const { value: returnDate } = await Swal.fire({
       title: 'Pinjam Buku',
+      background: colors.cardCream,
       html:
-        `<p style="font-size:14px; color:#6B7280; margin-bottom:10px;">Kapan kamu akan mengembalikan buku ini?</p>` +
-        `<p style="font-size:12px; color:#DB2777; margin-bottom:5px;">*Maksimal peminjaman 1 minggu</p>` +
+        `<p style="font-size:14px; color:${colors.textDark}; margin-bottom:10px;">Kapan kamu akan mengembalikan buku ini?</p>` +
+        `<p style="font-size:12px; color:${colors.deepPink}; margin-bottom:5px;">*Maksimal peminjaman 1 minggu</p>` +
         `<input id="swal-date" type="date" class="swal2-input" min="${today}" max="${maxDate}" value="${today}" style="width: 250px;">`,
       icon: 'question',
       showCancelButton: true,
-      confirmButtonColor: '#DB2777',
+      confirmButtonColor: colors.deepPink,
       confirmButtonText: 'Pinjam Sekarang',
       preConfirm: () => {
         const dateInput = document.getElementById('swal-date').value;
@@ -142,20 +138,15 @@ export default function Books({ isAdmin }) {
       borrowBook({ 
         user_id: JSON.parse(localStorage.getItem("user")).id, 
         book_id: bookId,
-        return_date: returnDate // 🟢 Mengirim tanggal kembali ke backend
+        return_date: returnDate 
       })
       .then(() => {
-        Swal.fire({
-          title: 'Berhasil!',
-          text: `Buku dipinjam. Kembalikan paling lambat ${returnDate}`,
-          icon: 'success'
-        });
+        Swal.fire({ title: 'Berhasil!', text: `Kembalikan paling lambat ${returnDate}`, icon: 'success', background: colors.cardCream });
         loadBooks();
-        // Beri waktu sebentar sebelum reload agar user bisa baca notif
         setTimeout(() => window.location.reload(), 2000);
       })
       .catch(err => {
-        Swal.fire('Gagal', err.response?.data?.message || "Terjadi kesalahan", 'error');
+        Swal.fire({ title: 'Gagal', text: err.response?.data?.message || "Terjadi kesalahan", icon: 'error', background: colors.cardCream });
       });
     }
   };
@@ -164,47 +155,61 @@ export default function Books({ isAdmin }) {
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "25px", gap: "15px", flexWrap: "wrap" }}>
         {isAdmin && (
-          <button onClick={handleAdd} className="btn-action-green" style={{ padding: "10px 20px", background: "#10B981", color: "white", border: "none", borderRadius: "10px", cursor: "pointer", fontWeight: "600" }}>
+          <button onClick={handleAdd} style={{ padding: "10px 20px", background: "#10B981", color: "white", border: "none", borderRadius: "10px", cursor: "pointer", fontWeight: "600" }}>
             ➕ Tambah Buku Baru
           </button>
         )}
         <div style={{ position: "relative", flex: "1", maxWidth: "350px" }}>
-          <span style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "#9CA3AF" }}>🔍</span>
+          <span style={{ position: "absolute", left: "15px", top: "50%", transform: "translateY(-50%)", color: colors.deepPink }}>🔍</span>
           <input
             type="text"
             placeholder="Cari judul atau penulis..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            style={{ width: "100%", padding: "10px 15px 10px 35px", borderRadius: "10px", border: "1px solid #F9A8D4", outline: "none", fontSize: "14px" }}
+            style={{ width: "100%", padding: "12px 15px 12px 40px", borderRadius: "15px", border: `2px solid ${colors.softPink}`, outline: "none", fontSize: "14px", background: colors.cardCream }}
           />
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: "25px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "25px" }}>
         {filteredBooks.length > 0 ? (
           filteredBooks.map((book) => (
-            <div key={book.id} style={{ background: "white", borderRadius: "15px", padding: "20px", border: "1px solid #F3F4F6", position: "relative", display: "flex", flexDirection: "column", gap: "10px", boxShadow: "0 4px 6px rgba(0,0,0,0.02)" }}>
-              <div style={{ display: "flex", gap: "10px" }}>
-                <span style={{ fontSize: "28px" }}>📕</span>
-                <h3 style={{ margin: 0, fontSize: "16px", fontWeight: "600" }}>{book.judul}</h3>
+            <div key={book.id} style={{ 
+              background: colors.cardCream, 
+              borderRadius: "20px", 
+              padding: "25px", 
+              border: `2px solid ${colors.softPink}`, 
+              display: "flex", 
+              flexDirection: "column", 
+              gap: "12px", 
+              boxShadow: "5px 5px 0px rgba(249, 168, 212, 0.2)" 
+            }}>
+              <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
+                <span style={{ fontSize: "35px" }}>📕</span>
+                <h3 style={{ margin: 0, fontSize: "18px", fontWeight: "700", color: colors.textDark, lineHeight: "1.2" }}>{book.judul}</h3>
               </div>
-              <p style={{ fontSize: "13px", color: "#6B7280", margin: "5px 0" }}>✍️ {book.penulis}</p>
-              <p style={{ fontSize: "12px", color: "#9CA3AF" }}>🏢 {book.penerbit || '-'}</p>
-              <div style={{ marginTop: "auto", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ fontSize: "11px", background: book.stok > 0 ? "#D1FAE5" : "#FEE2E2", color: book.stok > 0 ? "#059669" : "#DC2626", padding: "4px 8px", borderRadius: "99px" }}>
+              <p style={{ fontSize: "14px", color: colors.textDark, margin: "5px 0", display: "flex", alignItems: "center", gap: "8px" }}>
+                ✍️ {book.penulis}
+              </p>
+              <p style={{ fontSize: "13px", color: colors.textDark, opacity: 0.7, margin: 0, display: "flex", alignItems: "center", gap: "8px" }}>
+                🏢 {book.penerbit || '-'}
+              </p>
+              
+              <div style={{ marginTop: "auto", display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: "15px" }}>
+                <span style={{ fontSize: "12px", background: "#D1FAE5", color: "#059669", padding: "5px 12px", borderRadius: "12px", fontWeight: "bold" }}>
                   Stok: {book.stok}
                 </span>
-                <div style={{ display: "flex", gap: "5px" }}>
+                <div style={{ display: "flex", gap: "8px" }}>
                   {isAdmin ? (
                     <>
-                      <button onClick={() => handleEdit(book)} style={{ background: "#3B82F6", color: "white", border: "none", borderRadius: "5px", padding: "5px 8px", cursor: "pointer" }}>✏️</button>
-                      <button onClick={() => handleDelete(book.id)} style={{ background: "#EF4444", color: "white", border: "none", borderRadius: "5px", padding: "5px 8px", cursor: "pointer" }}>🗑️</button>
+                      <button onClick={() => handleEdit(book)} style={{ background: "#3B82F6", color: "white", border: "none", borderRadius: "10px", padding: "8px", cursor: "pointer" }}>✏️</button>
+                      <button onClick={() => handleDelete(book.id)} style={{ background: "#EF4444", color: "white", border: "none", borderRadius: "10px", padding: "8px", cursor: "pointer" }}>🗑️</button>
                     </>
                   ) : (
                     book.stok > 0 && (
                       <button 
                         onClick={() => handleBorrow(book.id)} 
-                        style={{ padding: "6px 15px", background: "#DB2777", color: "white", border: "none", borderRadius: "8px", cursor: "pointer", fontWeight: "600", fontSize: "12px" }}
+                        style={{ padding: "8px 20px", background: colors.deepPink, color: "white", border: "none", borderRadius: "12px", cursor: "pointer", fontWeight: "700", fontSize: "13px", boxShadow: "0 4px 0 #9D174D" }}
                       >
                         Pinjam
                       </button>

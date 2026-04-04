@@ -50,7 +50,7 @@ export default function Dashboard() {
       showCancelButton: true,
       confirmButtonColor: colors.deepPink,
       confirmButtonText: 'Ya, Kembalikan',
-      background: colors.cardPink, // Modal ikut warna Pink
+      background: colors.cardPink,
       color: colors.textDark
     }).then((result) => {
       if (result.isConfirmed) {
@@ -135,27 +135,33 @@ export default function Dashboard() {
           {/* TAB 1: DASHBOARD */}
           {activeTab === "home" && (
             <div style={{ textAlign: "center" }}>
-              <h2 style={{ color: colors.deepPink, fontSize: "28px", fontWeight: "800", marginBottom: "10px" }}>Selamat Datang, {user?.name}! ✨</h2>
-              <p style={{ marginBottom: "35px", fontWeight: "500" }}>Kelola perpustakaanmu dengan suasana penuh warna dan ceria.</p>
+              {/* 🟢 Judul yang diperbarui */}
+              <h2 style={{ color: colors.deepPink, fontSize: "28px", fontWeight: "800", marginBottom: "10px" }}>
+                Selamat Datang di Perpustakaan Digital Tiara✨
+              </h2>
+              
+              {/* 🟢 Kalimat sambutan request kamu */}
+              <p style={{ marginBottom: "35px", fontWeight: "500", maxWidth: "700px", margin: "0 auto 35px", lineHeight: "1.6" }}>
+                Yuk, jelajahi dunia lewat buku hari ini. Pilih bacaan favoritmu dan jangan lupa kembalikan tepat waktu ya, manis! 🎀
+              </p>
               
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "25px" }}>
-                {/* Box Cream */}
                 <div style={{ background: colors.bgCream, padding: "30px", borderRadius: "25px", border: `3px solid ${colors.deepPink}`, color: colors.deepPink }}>
                   <h4 style={{ margin: 0, textTransform: "uppercase", fontSize: "12px" }}>Total Buku</h4>
                   <h1 style={{ fontSize: "50px", margin: "10px 0" }}>{books.length}</h1>
                 </div>
                 
-                {/* Box Biru */}
                 <div style={{ background: colors.softBlue, padding: "30px", borderRadius: "25px", border: `3px solid ${colors.skyBlue}`, color: colors.skyBlue }}>
                   <h4 style={{ margin: 0, textTransform: "uppercase", fontSize: "12px" }}>Dipinjam</h4>
                   <h1 style={{ fontSize: "50px", margin: "10px 0" }}>{activeLoansCount}</h1>
                 </div>
                 
-                {/* Box Pink Tua */}
-                <div style={{ background: colors.deepPink, padding: "30px", borderRadius: "25px", border: `3px solid ${colors.cardPink}`, color: "white" }}>
-                  <h4 style={{ margin: 0, textTransform: "uppercase", fontSize: "12px", opacity: 0.8 }}>Anggota</h4>
-                  <h1 style={{ fontSize: "50px", margin: "10px 0" }}>{users.length}</h1>
-                </div>
+                {user?.role === "admin" && (
+                  <div style={{ background: colors.deepPink, padding: "30px", borderRadius: "25px", border: `3px solid ${colors.cardPink}`, color: "white" }}>
+                    <h4 style={{ margin: 0, textTransform: "uppercase", fontSize: "12px", opacity: 0.8 }}>Anggota</h4>
+                    <h1 style={{ fontSize: "50px", margin: "10px 0" }}>{users.length}</h1>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -163,7 +169,7 @@ export default function Dashboard() {
           {activeTab === "books" && <Books isAdmin={user?.role === "admin"} />}
           {activeTab === "users" && user?.role === "admin" && <Users />}
 
-          {/* TAB 4: RIWAYAT (FULL PINK & BLUE THEME) */}
+          {/* TAB 4: RIWAYAT */}
           {activeTab === "loans" && (
             <div>
               <h2 style={{ color: colors.deepPink, marginBottom: "20px", textAlign: "center" }}>📊 Log Aktivitas</h2>
@@ -183,7 +189,7 @@ export default function Dashboard() {
                         <td style={{ padding: "15px", borderRadius: "15px 0 0 15px", fontWeight: "bold" }}>{loan.book?.judul}</td>
                         <td style={{ padding: "15px" }}>{loan.user?.name}</td>
                         <td style={{ padding: "15px", color: colors.skyBlue, fontWeight: "bold" }}>
-                          {loan.return_date ? new Date(loan.return_date).toLocaleDateString() : "7 Hari"}
+                          {loan.return_date ? new Date(loan.return_date).toLocaleDateString('id-ID') : "7 Hari"}
                         </td>
                         <td style={{ padding: "15px", borderRadius: "0 15px 15px 0", textAlign: "center" }}>
                           {!loan.returned_at ? (
