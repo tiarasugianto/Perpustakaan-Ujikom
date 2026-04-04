@@ -24,7 +24,6 @@ export default function Dashboard() {
     getBooks().then(res => setBooks(res.data));
     getUsers().then(res => setUsers(res.data));
     getLoans().then((res) => {
-      // Admin lihat semua, User lihat miliknya saja
       const dataRecord = res.data;
       const filtered = currentUser.role === "admin" 
         ? dataRecord 
@@ -45,7 +44,9 @@ export default function Dashboard() {
       if (result.isConfirmed) {
         returnBook(id).then(() => {
           Swal.fire('Berhasil!', 'Buku telah dikembalikan.', 'success');
-          window.location.reload(); 
+          // Reload data tanpa reload halaman penuh agar lebih smooth
+          const storedUser = JSON.parse(localStorage.getItem("user"));
+          loadAllData(storedUser);
         });
       }
     });
@@ -63,8 +64,9 @@ export default function Dashboard() {
       {/* HEADER */}
       <div style={{ background: "white", padding: "15px 0", boxShadow: "0 2px 10px rgba(0,0,0,0.05)", marginBottom: "30px", position: "sticky", top: 0, zIndex: 10 }}>
         <div style={{ maxWidth: "1200px", margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 20px" }}>
+          {/* 🟢 Perubahan Nama Branding di Sini */}
           <h1 style={{ color: "#DB2777", margin: 0, fontSize: "22px", fontWeight: "600" }}>
-            📚 Perpustakaan<span style={{color: "#F472B6"}}>Digital</span>
+            📚 Perpustakaan <span style={{color: "#F472B6"}}>Digital</span>
           </h1>
           <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
             {user && (
@@ -73,7 +75,7 @@ export default function Dashboard() {
                 <span style={{ fontSize: "11px", color: "#DB2777", background: "#FCE7F3", padding: "2px 8px", borderRadius: "10px", fontWeight: "600" }}>{user.role.toUpperCase()}</span>
               </div>
             )}
-            <button onClick={handleLogout} className="btn-logout-pink" style={{ padding: "8px 16px", borderRadius: "10px", border: "1px solid #F9A8D4", background: "white", color: "#DB2777", cursor: "pointer", fontWeight: "500" }}>Logout</button>
+            <button onClick={handleLogout} style={{ padding: "8px 16px", borderRadius: "10px", border: "1px solid #F9A8D4", background: "white", color: "#DB2777", cursor: "pointer", fontWeight: "500" }}>Logout</button>
           </div>
         </div>
       </div>
@@ -96,8 +98,8 @@ export default function Dashboard() {
           {/* TAB 1: DASHBOARD */}
           {activeTab === "home" && (
             <div style={{ textAlign: "center" }}>
-              <h2 style={{ color: "#1F2937", marginBottom: "10px" }}>Selamat Datang di Perpustakaan Digital ✨</h2>
-              <p style={{ color: "#6B7280", marginBottom: "30px" }}>Mau baca apa hari ini? Temukan ribuan ilmu dalam genggamanmu. Jangan lupa kembalikan buku tepat waktu ya!</p>
+              <h2 style={{ color: "#1F2937", marginBottom: "10px" }}>Selamat Datang di Perpustakaan Digital, <span style={{color: '#DB2777'}}>{user?.name}</span> ✨</h2>
+              <p style={{ color: "#6B7280", marginBottom: "30px" }}>Mau baca apa hari ini? Temukan ribuan ilmu dalam genggamanmu. <br/> Pinjam buku maksimal 1 minggu dan kembalikan tepat waktu ya!</p>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "20px" }}>
                 <div style={{ background: "linear-gradient(135deg, #F472B6, #DB2777)", padding: "30px", borderRadius: "20px", color: "white" }}>
                   <h4 style={{ margin: 0, opacity: 0.8 }}>Total Koleksi</h4>
@@ -120,13 +122,10 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* TAB 2: BUKU */}
           {activeTab === "books" && <Books isAdmin={user?.role === "admin"} />}
-
-          {/* TAB 3: ANGGOTA */}
           {activeTab === "users" && user?.role === "admin" && <Users />}
 
-          {/* TAB 4: RIWAYAT (TABEL DIPERBAIKI) */}
+          {/* TAB 4: RIWAYAT (DENGAN TENGGAT WAKTU) */}
           {activeTab === "loans" && (
             <div>
               <h2 style={{ color: "#1F2937", marginBottom: "25px", borderBottom: "3px solid #FBCFE8", paddingBottom: "12px", fontSize: "20px" }}>
@@ -139,6 +138,7 @@ export default function Dashboard() {
                       <th style={{ padding: "12px" }}>Judul Buku</th>
                       <th style={{ padding: "12px" }}>Peminjam</th>
                       <th style={{ padding: "12px" }}>Waktu Pinjam</th>
+                      <th style={{ padding: "12px" }}>Tenggat Kembali</th> {/* 🟢 Kolom Baru */}
                       <th style={{ padding: "12px" }}>Status</th>
                       <th style={{ padding: "12px" }}>Aksi</th>
                     </tr>
@@ -150,8 +150,13 @@ export default function Dashboard() {
                           <td style={{ padding: "12px" }}><strong>{loan.book?.judul || "Buku Dihapus"}</strong></td>
                           <td style={{ padding: "12px" }}>{loan.user?.name || "User"}</td>
                           <td style={{ padding: "12px" }}>
-                            {new Date(loan.borrowed_at).toLocaleDateString('id-ID')} <br/>
-                            <small style={{color: '#9CA3AF'}}>{new Date(loan.borrowed_at).toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'})} WIB</small>
+                            {new Date(loan.borrowed_at).toLocaleDateString('id-ID')}
+                          </td>
+                          <td style={{ padding: "12px", color: "#DB2777", fontWeight: "600" }}>
+                            {/* Menghitung otomatis H+7 jika data return_date belum ada di DB */}
+                            {loan.return_date ? new Date(loan.return_date).toLocaleDateString('id-ID') : 
+                              new Date(new Date(loan.borrowed_at).getTime() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('id-ID')
+                            }
                           </td>
                           <td style={{ padding: "12px" }}>
                             {loan.returned_at ? (
@@ -170,7 +175,7 @@ export default function Dashboard() {
                         </tr>
                       ))
                     ) : (
-                      <tr><td colSpan="5" style={{ textAlign: "center", padding: "30px", color: "#9CA3AF" }}>Belum ada data peminjaman.</td></tr>
+                      <tr><td colSpan="6" style={{ textAlign: "center", padding: "30px", color: "#9CA3AF" }}>Belum ada data peminjaman.</td></tr>
                     )}
                   </tbody>
                 </table>
