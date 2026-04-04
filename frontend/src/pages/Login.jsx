@@ -88,7 +88,7 @@ export default function Login({ setAuth }) {
   return (
     <div className="login-container">
       <div className="login-card">
-        <h2>🔐 Login Perpustakaan</h2>
+        <h2> Login Perpustakaan</h2>
 
         {error && (
           <p className="error" style={{ color: 'white', backgroundColor: '#ff4d4d', padding: '10px', borderRadius: '5px', marginBottom: '10px', textAlign: 'center' }}>

@@ -64,7 +64,7 @@ export default function Dashboard() {
       <div style={{ background: "white", padding: "15px 0", boxShadow: "0 2px 10px rgba(0,0,0,0.05)", marginBottom: "30px", position: "sticky", top: 0, zIndex: 10 }}>
         <div style={{ maxWidth: "1200px", margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 20px" }}>
           <h1 style={{ color: "#DB2777", margin: 0, fontSize: "22px", fontWeight: "600" }}>
-            📚 Perpus<span style={{color: "#F472B6"}}>Digi</span>
+            📚 Perpustakaan<span style={{color: "#F472B6"}}>Digital</span>
           </h1>
           <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
             {user && (
@@ -96,8 +96,8 @@ export default function Dashboard() {
           {/* TAB 1: DASHBOARD */}
           {activeTab === "home" && (
             <div style={{ textAlign: "center" }}>
-              <h2 style={{ color: "#1F2937", marginBottom: "10px" }}>Selamat Datang di PerpusDigi! ✨</h2>
-              <p style={{ color: "#6B7280", marginBottom: "30px" }}>Ringkasan data perpustakaan saat ini.</p>
+              <h2 style={{ color: "#1F2937", marginBottom: "10px" }}>Selamat Datang di Perpustakaan Digital ✨</h2>
+              <p style={{ color: "#6B7280", marginBottom: "30px" }}>Mau baca apa hari ini? Temukan ribuan ilmu dalam genggamanmu. Jangan lupa kembalikan buku tepat waktu ya!</p>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "20px" }}>
                 <div style={{ background: "linear-gradient(135deg, #F472B6, #DB2777)", padding: "30px", borderRadius: "20px", color: "white" }}>
                   <h4 style={{ margin: 0, opacity: 0.8 }}>Total Koleksi</h4>
