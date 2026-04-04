@@ -11,6 +11,17 @@ export default function Dashboard() {
   const [users, setUsers] = useState([]);
   const [activeTab, setActiveTab] = useState("home");
 
+  // --- PALET WARNA FULL COLOR TIARA (TANPA PUTIH) ---
+  const colors = {
+    bgCream: "#FFF9E6",     // Background Paling Dasar (Cream Hangat)
+    cardPink: "#FFE4F2",    // Background Kartu/Konten (Soft Pink - Pengganti Putih)
+    deepPink: "#DB2777",    // Warna Penegas/Tombol Aktif (Pink Tua)
+    skyBlue: "#60A5FA",     // Warna Aksen/Badge (Biru Muda)
+    softBlue: "#DBEAFE",    // Background Biru Muda untuk variasi
+    textDark: "#4D2C3D",    // Teks Cokelat Tua (biar nyambung sama Pink/Cream)
+    borderPink: "#F9A8D4",  // Garis tepi Pink
+  };
+
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
@@ -35,16 +46,22 @@ export default function Dashboard() {
   const handleReturn = (id) => {
     Swal.fire({
       title: 'Kembalikan Buku?',
-      text: "Pastikan buku dalam kondisi baik ya!",
       icon: 'question',
       showCancelButton: true,
-      confirmButtonColor: '#DB2777',
-      confirmButtonText: 'Ya, Kembalikan'
+      confirmButtonColor: colors.deepPink,
+      confirmButtonText: 'Ya, Kembalikan',
+      background: colors.cardPink, // Modal ikut warna Pink
+      color: colors.textDark
     }).then((result) => {
       if (result.isConfirmed) {
         returnBook(id).then(() => {
-          Swal.fire('Berhasil!', 'Buku telah dikembalikan.', 'success');
-          // Reload data tanpa reload halaman penuh agar lebih smooth
+          Swal.fire({
+            title: 'Berhasil!',
+            text: 'Buku telah dikembalikan.',
+            icon: 'success',
+            confirmButtonColor: colors.deepPink,
+            background: colors.cardPink
+          });
           const storedUser = JSON.parse(localStorage.getItem("user"));
           loadAllData(storedUser);
         });
@@ -60,64 +77,85 @@ export default function Dashboard() {
   const activeLoansCount = loans.filter(l => !l.returned_at).length;
 
   return (
-    <div style={{ minHeight: "100vh", background: "#FDF2F8", fontFamily: "'Poppins', sans-serif" }}>
-      {/* HEADER */}
-      <div style={{ background: "white", padding: "15px 0", boxShadow: "0 2px 10px rgba(0,0,0,0.05)", marginBottom: "30px", position: "sticky", top: 0, zIndex: 10 }}>
-        <div style={{ maxWidth: "1200px", margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 20px" }}>
-          {/* 🟢 Perubahan Nama Branding di Sini */}
-          <h1 style={{ color: "#DB2777", margin: 0, fontSize: "22px", fontWeight: "600" }}>
-            📚 Perpustakaan <span style={{color: "#F472B6"}}>Digital</span>
+    <div style={{ minHeight: "100vh", background: colors.bgCream, fontFamily: "'Poppins', sans-serif", color: colors.textDark, paddingBottom: "50px" }}>
+      
+      {/* 1. HEADER (FULL PINK) */}
+      <div style={{ background: colors.cardPink, padding: "20px 0", boxShadow: "0 4px 10px rgba(219, 39, 119, 0.1)", marginBottom: "30px", borderBottom: `3px solid ${colors.borderPink}` }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 25px" }}>
+          <h1 style={{ color: colors.deepPink, margin: 0, fontSize: "26px", fontWeight: "800" }}>
+            📚 Perpustakaan <span style={{color: colors.skyBlue}}>Digital</span>
           </h1>
           <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
             {user && (
-              <div style={{ textAlign: "right" }}>
-                <p style={{ margin: 0, color: "#4B5563", fontSize: "14px" }}>Halo, <strong>{user.name}</strong></p>
-                <span style={{ fontSize: "11px", color: "#DB2777", background: "#FCE7F3", padding: "2px 8px", borderRadius: "10px", fontWeight: "600" }}>{user.role.toUpperCase()}</span>
+              <div style={{ background: colors.bgCream, padding: "5px 15px", borderRadius: "15px", border: `1px solid ${colors.borderPink}`, textAlign: "right" }}>
+                <p style={{ margin: 0, color: colors.textDark, fontSize: "14px", fontWeight: "600" }}>{user.name}</p>
+                <span style={{ fontSize: "10px", color: colors.deepPink, fontWeight: "bold" }}>{user.role.toUpperCase()}</span>
               </div>
             )}
-            <button onClick={handleLogout} style={{ padding: "8px 16px", borderRadius: "10px", border: "1px solid #F9A8D4", background: "white", color: "#DB2777", cursor: "pointer", fontWeight: "500" }}>Logout</button>
+            <button onClick={handleLogout} style={{ background: colors.deepPink, color: "white", border: "none", padding: "10px 18px", borderRadius: "12px", cursor: "pointer", fontWeight: "bold" }}>Logout</button>
           </div>
         </div>
       </div>
 
-      <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "0 20px 40px" }}>
+      <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "0 20px" }}>
         
-        {/* NAVIGASI UTAMA */}
-        <div style={{ marginBottom: "30px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
-          <button onClick={() => setActiveTab("home")} style={{ background: activeTab === "home" ? "#DB2777" : "white", color: activeTab === "home" ? "white" : "#DB2777", border: "1px solid #DB2777", padding: "10px 20px", borderRadius: "12px", cursor: "pointer", fontWeight: "600" }}>🏠 Dashboard</button>
-          <button onClick={() => setActiveTab("books")} style={{ background: activeTab === "books" ? "#DB2777" : "white", color: activeTab === "books" ? "white" : "#DB2777", border: "1px solid #DB2777", padding: "10px 20px", borderRadius: "12px", cursor: "pointer", fontWeight: "600" }}>📖 Buku</button>
-          {user?.role === "admin" && (
-            <button onClick={() => setActiveTab("users")} style={{ background: activeTab === "users" ? "#DB2777" : "white", color: activeTab === "users" ? "white" : "#DB2777", border: "1px solid #DB2777", padding: "10px 20px", borderRadius: "12px", cursor: "pointer", fontWeight: "600" }}>👥 Anggota</button>
-          )}
-          <button onClick={() => setActiveTab("loans")} style={{ background: activeTab === "loans" ? "#DB2777" : "white", color: activeTab === "loans" ? "white" : "#DB2777", border: "1px solid #DB2777", padding: "10px 20px", borderRadius: "12px", cursor: "pointer", fontWeight: "600" }}>📋 Riwayat</button>
+        {/* 2. NAVIGASI (WARNA CERIA) */}
+        <div style={{ marginBottom: "25px", display: "flex", gap: "12px", flexWrap: "wrap" }}>
+          {[
+            { id: "home", label: "🏠 Home", color: colors.deepPink },
+            { id: "books", label: "📖 Buku", color: colors.skyBlue },
+            { id: "users", label: "👥 Siswa", adminOnly: true, color: "#9333EA" },
+            { id: "loans", label: "📋 Riwayat", color: "#F59E0B" },
+          ].map((tab) => {
+            if (tab.adminOnly && user?.role !== "admin") return null;
+            const isActive = activeTab === tab.id;
+            return (
+              <button 
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)} 
+                style={{ 
+                  background: isActive ? tab.color : colors.cardPink, 
+                  color: isActive ? "white" : colors.textDark, 
+                  border: `2px solid ${isActive ? tab.color : colors.borderPink}`, 
+                  padding: "12px 25px", 
+                  borderRadius: "15px", 
+                  cursor: "pointer", 
+                  fontWeight: "700",
+                  transition: "0.3s"
+                }}>
+                {tab.label}
+              </button>
+            );
+          })}
         </div>
 
-        {/* BOX KONTEN */}
-        <div style={{ background: "white", padding: "30px", borderRadius: "25px", boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}>
+        {/* 3. KONTEN (BACKGROUND PINK MUDA - PENGGANTI PUTIH) */}
+        <div style={{ background: colors.cardPink, padding: "35px", borderRadius: "30px", border: `2px solid ${colors.borderPink}`, boxShadow: "8px 8px 0px rgba(249, 168, 212, 0.3)" }}>
           
           {/* TAB 1: DASHBOARD */}
           {activeTab === "home" && (
             <div style={{ textAlign: "center" }}>
-              <h2 style={{ color: "#1F2937", marginBottom: "10px" }}>Selamat Datang di Perpustakaan Digital, <span style={{color: '#DB2777'}}>{user?.name}</span> ✨</h2>
-              <p style={{ color: "#6B7280", marginBottom: "30px" }}>Mau baca apa hari ini? Temukan ribuan ilmu dalam genggamanmu. <br/> Pinjam buku maksimal 1 minggu dan kembalikan tepat waktu ya!</p>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "20px" }}>
-                <div style={{ background: "linear-gradient(135deg, #F472B6, #DB2777)", padding: "30px", borderRadius: "20px", color: "white" }}>
-                  <h4 style={{ margin: 0, opacity: 0.8 }}>Total Koleksi</h4>
-                  <h1 style={{ fontSize: "40px", margin: "10px 0" }}>{books.length}</h1>
-                  <p style={{ margin: 0, fontSize: "12px" }}>Buku tersedia</p>
+              <h2 style={{ color: colors.deepPink, fontSize: "28px", fontWeight: "800", marginBottom: "10px" }}>Selamat Datang, {user?.name}! ✨</h2>
+              <p style={{ marginBottom: "35px", fontWeight: "500" }}>Kelola perpustakaanmu dengan suasana penuh warna dan ceria.</p>
+              
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "25px" }}>
+                {/* Box Cream */}
+                <div style={{ background: colors.bgCream, padding: "30px", borderRadius: "25px", border: `3px solid ${colors.deepPink}`, color: colors.deepPink }}>
+                  <h4 style={{ margin: 0, textTransform: "uppercase", fontSize: "12px" }}>Total Buku</h4>
+                  <h1 style={{ fontSize: "50px", margin: "10px 0" }}>{books.length}</h1>
                 </div>
-                <div style={{ background: "#FFF1F2", padding: "30px", borderRadius: "20px", border: "1px solid #FECDD3" }}>
-                  <h4 style={{ margin: 0, color: "#9F1239" }}>Sedang Dipinjam</h4>
-                  <h1 style={{ fontSize: "40px", margin: "10px 0", color: "#E11D48" }}>{activeLoansCount}</h1>
-                  <p style={{ margin: 0, fontSize: "12px", color: "#FB7185" }}>Belum kembali</p>
+                
+                {/* Box Biru */}
+                <div style={{ background: colors.softBlue, padding: "30px", borderRadius: "25px", border: `3px solid ${colors.skyBlue}`, color: colors.skyBlue }}>
+                  <h4 style={{ margin: 0, textTransform: "uppercase", fontSize: "12px" }}>Dipinjam</h4>
+                  <h1 style={{ fontSize: "50px", margin: "10px 0" }}>{activeLoansCount}</h1>
                 </div>
-                {user?.role === "admin" && (
-                  <div style={{ background: "#F0F9FF", padding: "30px", borderRadius: "20px", border: "1px solid #BAE6FD" }}>
-                    <h4 style={{ margin: 0, color: "#075985" }}>Total Anggota</h4>
-                    <h1 style={{ fontSize: "40px", margin: "10px 0", color: "#0284C7" }}>{users.length}</h1>
-                    <p style={{ margin: 0, fontSize: "12px", color: "#38BDF8" }}>Siswa terdaftar</p>
-                  </div>
-                )}
+                
+                {/* Box Pink Tua */}
+                <div style={{ background: colors.deepPink, padding: "30px", borderRadius: "25px", border: `3px solid ${colors.cardPink}`, color: "white" }}>
+                  <h4 style={{ margin: 0, textTransform: "uppercase", fontSize: "12px", opacity: 0.8 }}>Anggota</h4>
+                  <h1 style={{ fontSize: "50px", margin: "10px 0" }}>{users.length}</h1>
+                </div>
               </div>
             </div>
           )}
@@ -125,58 +163,37 @@ export default function Dashboard() {
           {activeTab === "books" && <Books isAdmin={user?.role === "admin"} />}
           {activeTab === "users" && user?.role === "admin" && <Users />}
 
-          {/* TAB 4: RIWAYAT (DENGAN TENGGAT WAKTU) */}
+          {/* TAB 4: RIWAYAT (FULL PINK & BLUE THEME) */}
           {activeTab === "loans" && (
             <div>
-              <h2 style={{ color: "#1F2937", marginBottom: "25px", borderBottom: "3px solid #FBCFE8", paddingBottom: "12px", fontSize: "20px" }}>
-                📋 Riwayat Peminjaman Buku
-              </h2>
+              <h2 style={{ color: colors.deepPink, marginBottom: "20px", textAlign: "center" }}>📊 Log Aktivitas</h2>
               <div style={{ overflowX: "auto" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "14px" }}>
+                <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: "0 10px" }}>
                   <thead>
-                    <tr style={{ textAlign: "left", borderBottom: "2px solid #FDF2F8", color: "#6B7280" }}>
-                      <th style={{ padding: "12px" }}>Judul Buku</th>
-                      <th style={{ padding: "12px" }}>Peminjam</th>
-                      <th style={{ padding: "12px" }}>Waktu Pinjam</th>
-                      <th style={{ padding: "12px" }}>Tenggat Kembali</th> {/* 🟢 Kolom Baru */}
-                      <th style={{ padding: "12px" }}>Status</th>
-                      <th style={{ padding: "12px" }}>Aksi</th>
+                    <tr style={{ color: colors.deepPink, fontSize: "14px" }}>
+                      <th style={{ padding: "15px" }}>Judul</th>
+                      <th style={{ padding: "15px" }}>Peminjam</th>
+                      <th style={{ padding: "15px" }}>Tenggat</th>
+                      <th style={{ padding: "15px" }}>Aksi</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {loans.length > 0 ? (
-                      loans.map((loan) => (
-                        <tr key={loan.id} style={{ borderBottom: "1px solid #FDF2F8" }}>
-                          <td style={{ padding: "12px" }}><strong>{loan.book?.judul || "Buku Dihapus"}</strong></td>
-                          <td style={{ padding: "12px" }}>{loan.user?.name || "User"}</td>
-                          <td style={{ padding: "12px" }}>
-                            {new Date(loan.borrowed_at).toLocaleDateString('id-ID')}
-                          </td>
-                          <td style={{ padding: "12px", color: "#DB2777", fontWeight: "600" }}>
-                            {/* Menghitung otomatis H+7 jika data return_date belum ada di DB */}
-                            {loan.return_date ? new Date(loan.return_date).toLocaleDateString('id-ID') : 
-                              new Date(new Date(loan.borrowed_at).getTime() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('id-ID')
-                            }
-                          </td>
-                          <td style={{ padding: "12px" }}>
-                            {loan.returned_at ? (
-                              <span style={{ color: "#059669", background: "#D1FAE5", padding: "4px 10px", borderRadius: "8px", fontSize: "12px" }}>Selesai</span>
-                            ) : (
-                              <span style={{ color: "#D97706", background: "#FEF3C7", padding: "4px 10px", borderRadius: "8px", fontSize: "12px" }}>Dipinjam</span>
-                            )}
-                          </td>
-                          <td style={{ padding: "12px" }}>
-                            {!loan.returned_at && (
-                              <button onClick={() => handleReturn(loan.id)} style={{ background: "#DB2777", color: "white", border: "none", padding: "6px 12px", borderRadius: "8px", cursor: "pointer", fontSize: "12px" }}>
-                                Kembalikan
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr><td colSpan="6" style={{ textAlign: "center", padding: "30px", color: "#9CA3AF" }}>Belum ada data peminjaman.</td></tr>
-                    )}
+                    {loans.map((loan) => (
+                      <tr key={loan.id} style={{ background: colors.bgCream, borderRadius: "15px" }}>
+                        <td style={{ padding: "15px", borderRadius: "15px 0 0 15px", fontWeight: "bold" }}>{loan.book?.judul}</td>
+                        <td style={{ padding: "15px" }}>{loan.user?.name}</td>
+                        <td style={{ padding: "15px", color: colors.skyBlue, fontWeight: "bold" }}>
+                          {loan.return_date ? new Date(loan.return_date).toLocaleDateString() : "7 Hari"}
+                        </td>
+                        <td style={{ padding: "15px", borderRadius: "0 15px 15px 0", textAlign: "center" }}>
+                          {!loan.returned_at ? (
+                            <button onClick={() => handleReturn(loan.id)} style={{ background: colors.skyBlue, color: "white", border: "none", padding: "8px 15px", borderRadius: "10px", cursor: "pointer", fontWeight: "bold" }}>Kembalikan</button>
+                          ) : (
+                            <span style={{ color: colors.deepPink, fontWeight: "bold" }}>Selesai ✓</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
