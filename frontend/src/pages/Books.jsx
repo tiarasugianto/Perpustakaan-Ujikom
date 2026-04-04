@@ -16,13 +16,11 @@ export default function Books({ isAdmin }) {
     loadBooks();
   }, []);
 
-  // 🔍 Logika Filter: Cari berdasarkan Judul atau Penulis
   const filteredBooks = books.filter((book) =>
     book.judul.toLowerCase().includes(searchTerm.toLowerCase()) ||
     book.penulis.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // 1. TAMBAH BUKU (SweetAlert Tengah)
   const handleAdd = async () => {
     const { value: formValues } = await Swal.fire({
       title: 'Tambah Buku Baru',
@@ -59,7 +57,6 @@ export default function Books({ isAdmin }) {
     }
   };
 
-  // 2. EDIT BUKU (Bisa Edit Judul, Penerbit, & Stok)
   const handleEdit = async (book) => {
     const { value: formValues } = await Swal.fire({
       title: 'Edit Buku',
@@ -96,7 +93,6 @@ export default function Books({ isAdmin }) {
     }
   };
 
-  // 3. HAPUS BUKU
   const handleDelete = (id) => {
     Swal.fire({
       title: 'Yakin mau hapus?',
@@ -115,32 +111,60 @@ export default function Books({ isAdmin }) {
     });
   };
 
-  // 4. PINJAM BUKU
-  const handleBorrow = (bookId) => {
-    Swal.fire({
-      title: 'Pinjam Buku?',
+  // 🟢 4. PINJAM BUKU (DENGAN BATAS WAKTU MAKSIMAL 7 HARI)
+  const handleBorrow = async (bookId) => {
+    // Logika hitung tanggal (Hanya 1 minggu)
+    const today = new Date().toISOString().split("T")[0];
+    const nextWeek = new Date();
+    nextWeek.setDate(nextWeek.getDate() + 7);
+    const maxDate = nextWeek.toISOString().split("T")[0];
+
+    const { value: returnDate } = await Swal.fire({
+      title: 'Pinjam Buku',
+      html:
+        `<p style="font-size:14px; color:#6B7280; margin-bottom:10px;">Kapan kamu akan mengembalikan buku ini?</p>` +
+        `<p style="font-size:12px; color:#DB2777; margin-bottom:5px;">*Maksimal peminjaman 1 minggu</p>` +
+        `<input id="swal-date" type="date" class="swal2-input" min="${today}" max="${maxDate}" value="${today}" style="width: 250px;">`,
       icon: 'question',
       showCancelButton: true,
       confirmButtonColor: '#DB2777',
-      confirmButtonText: 'Pinjam Sekarang'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        borrowBook({ user_id: JSON.parse(localStorage.getItem("user")).id, book_id: bookId })
-          .then(() => {
-            Swal.fire('Berhasil!', 'Silakan cek riwayat di bawah.', 'success');
-            loadBooks();
-            setTimeout(() => window.location.reload(), 1500);
-          })
-          .catch(err => Swal.fire('Gagal', err.response?.data?.message, 'error'));
+      confirmButtonText: 'Pinjam Sekarang',
+      preConfirm: () => {
+        const dateInput = document.getElementById('swal-date').value;
+        if (!dateInput) {
+          Swal.showValidationMessage('Tolong pilih tanggal kembali!');
+        }
+        return dateInput;
       }
     });
+
+    if (returnDate) {
+      borrowBook({ 
+        user_id: JSON.parse(localStorage.getItem("user")).id, 
+        book_id: bookId,
+        return_date: returnDate // 🟢 Mengirim tanggal kembali ke backend
+      })
+      .then(() => {
+        Swal.fire({
+          title: 'Berhasil!',
+          text: `Buku dipinjam. Kembalikan paling lambat ${returnDate}`,
+          icon: 'success'
+        });
+        loadBooks();
+        // Beri waktu sebentar sebelum reload agar user bisa baca notif
+        setTimeout(() => window.location.reload(), 2000);
+      })
+      .catch(err => {
+        Swal.fire('Gagal', err.response?.data?.message || "Terjadi kesalahan", 'error');
+      });
+    }
   };
 
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "25px", gap: "15px", flexWrap: "wrap" }}>
         {isAdmin && (
-          <button onClick={handleAdd} className="btn-action-green">
+          <button onClick={handleAdd} className="btn-action-green" style={{ padding: "10px 20px", background: "#10B981", color: "white", border: "none", borderRadius: "10px", cursor: "pointer", fontWeight: "600" }}>
             ➕ Tambah Buku Baru
           </button>
         )}
@@ -159,7 +183,7 @@ export default function Books({ isAdmin }) {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: "25px" }}>
         {filteredBooks.length > 0 ? (
           filteredBooks.map((book) => (
-            <div key={book.id} className="book-card-pink" style={{ background: "white", borderRadius: "15px", padding: "20px", border: "1px solid #F3F4F6", position: "relative", display: "flex", flexDirection: "column", gap: "10px" }}>
+            <div key={book.id} style={{ background: "white", borderRadius: "15px", padding: "20px", border: "1px solid #F3F4F6", position: "relative", display: "flex", flexDirection: "column", gap: "10px", boxShadow: "0 4px 6px rgba(0,0,0,0.02)" }}>
               <div style={{ display: "flex", gap: "10px" }}>
                 <span style={{ fontSize: "28px" }}>📕</span>
                 <h3 style={{ margin: 0, fontSize: "16px", fontWeight: "600" }}>{book.judul}</h3>
@@ -177,7 +201,14 @@ export default function Books({ isAdmin }) {
                       <button onClick={() => handleDelete(book.id)} style={{ background: "#EF4444", color: "white", border: "none", borderRadius: "5px", padding: "5px 8px", cursor: "pointer" }}>🗑️</button>
                     </>
                   ) : (
-                    book.stok > 0 && <button onClick={() => handleBorrow(book.id)} className="btn-action-pink">Pinjam</button>
+                    book.stok > 0 && (
+                      <button 
+                        onClick={() => handleBorrow(book.id)} 
+                        style={{ padding: "6px 15px", background: "#DB2777", color: "white", border: "none", borderRadius: "8px", cursor: "pointer", fontWeight: "600", fontSize: "12px" }}
+                      >
+                        Pinjam
+                      </button>
+                    )
                   )}
                 </div>
               </div>
