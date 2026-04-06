@@ -74,16 +74,29 @@ export default function Dashboard() {
     window.location.href = "/";
   };
 
+  // Fungsi pembantu untuk memformat tanggal ke Bahasa Indonesia
+  const formatDate = (dateString) => {
+    if (!dateString) return "-";
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "-";
+    
+    return date.toLocaleDateString('id-ID', { 
+      day: '2-digit', 
+      month: 'long', 
+      year: 'numeric' 
+    });
+  };
+
   const activeLoansCount = loans.filter(l => !l.returned_at).length;
 
   return (
     <div style={{ minHeight: "100vh", background: colors.bgCream, fontFamily: "'Poppins', sans-serif", color: colors.textDark, paddingBottom: "50px" }}>
       
-      {/* 1. HEADER (FULL PINK) */}
+      {/* 1. HEADER */}
       <div style={{ background: colors.cardPink, padding: "20px 0", boxShadow: "0 4px 10px rgba(219, 39, 119, 0.1)", marginBottom: "30px", borderBottom: `3px solid ${colors.borderPink}` }}>
         <div style={{ maxWidth: "1200px", margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 25px" }}>
           <h1 style={{ color: colors.deepPink, margin: 0, fontSize: "26px", fontWeight: "800" }}>
-            📚 Perpustakaan <span style={{color: colors.skyBlue}}>Digital</span>
+            📚 Peminjaman <span style={{color: colors.skyBlue}}>Buku</span>
           </h1>
           <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
             {user && (
@@ -99,7 +112,7 @@ export default function Dashboard() {
 
       <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "0 20px" }}>
         
-        {/* 2. NAVIGASI (WARNA CERIA) */}
+        {/* 2. NAVIGASI */}
         <div style={{ marginBottom: "25px", display: "flex", gap: "12px", flexWrap: "wrap" }}>
           {[
             { id: "home", label: "🏠 Home", color: colors.deepPink },
@@ -129,18 +142,13 @@ export default function Dashboard() {
           })}
         </div>
 
-        {/* 3. KONTEN (BACKGROUND PINK MUDA - PENGGANTI PUTIH) */}
         <div style={{ background: colors.cardPink, padding: "35px", borderRadius: "30px", border: `2px solid ${colors.borderPink}`, boxShadow: "8px 8px 0px rgba(249, 168, 212, 0.3)" }}>
           
-          {/* TAB 1: DASHBOARD */}
           {activeTab === "home" && (
             <div style={{ textAlign: "center" }}>
-              {/* 🟢 Judul yang diperbarui */}
               <h2 style={{ color: colors.deepPink, fontSize: "28px", fontWeight: "800", marginBottom: "10px" }}>
-                Selamat Datang di Perpustakaan Digital Tiara✨
+                Selamat Datang di peminjaman buku Tiara✨
               </h2>
-              
-              {/* 🟢 Kalimat sambutan request kamu */}
               <p style={{ marginBottom: "35px", fontWeight: "500", maxWidth: "700px", margin: "0 auto 35px", lineHeight: "1.6" }}>
                 Yuk, jelajahi dunia lewat buku hari ini. Pilih bacaan favoritmu dan jangan lupa kembalikan tepat waktu ya, manis! 🎀
               </p>
@@ -179,7 +187,8 @@ export default function Dashboard() {
                     <tr style={{ color: colors.deepPink, fontSize: "14px" }}>
                       <th style={{ padding: "15px" }}>Judul</th>
                       <th style={{ padding: "15px" }}>Peminjam</th>
-                      <th style={{ padding: "15px" }}>Tenggat</th>
+                      <th style={{ padding: "15px" }}>Tgl Pinjam</th>
+                      <th style={{ padding: "15px" }}>Tgl Kembali</th>
                       <th style={{ padding: "15px" }}>Aksi</th>
                     </tr>
                   </thead>
@@ -188,9 +197,23 @@ export default function Dashboard() {
                       <tr key={loan.id} style={{ background: colors.bgCream, borderRadius: "15px" }}>
                         <td style={{ padding: "15px", borderRadius: "15px 0 0 15px", fontWeight: "bold" }}>{loan.book?.judul}</td>
                         <td style={{ padding: "15px" }}>{loan.user?.name}</td>
-                        <td style={{ padding: "15px", color: colors.skyBlue, fontWeight: "bold" }}>
-                          {loan.return_date ? new Date(loan.return_date).toLocaleDateString('id-ID') : "7 Hari"}
+                        
+                        {/* Tanggal Pinjam */}
+                        <td style={{ padding: "15px", fontSize: "13px" }}>{formatDate(loan.created_at)}</td>
+                        
+                        {/* Tanggal Kembali (Langsung Tanggal Tanpa Teks) */}
+                        <td style={{ padding: "15px", fontSize: "13px" }}>
+                          {loan.returned_at ? (
+                            <span style={{ color: colors.deepPink, fontWeight: "bold" }}>
+                              {formatDate(loan.returned_at)}
+                            </span>
+                          ) : (
+                            <span style={{ color: colors.skyBlue, fontWeight: "bold" }}>
+                              {formatDate(loan.return_date)}
+                            </span>
+                          )}
                         </td>
+
                         <td style={{ padding: "15px", borderRadius: "0 15px 15px 0", textAlign: "center" }}>
                           {!loan.returned_at ? (
                             <button onClick={() => handleReturn(loan.id)} style={{ background: colors.skyBlue, color: "white", border: "none", padding: "8px 15px", borderRadius: "10px", cursor: "pointer", fontWeight: "bold" }}>Kembalikan</button>

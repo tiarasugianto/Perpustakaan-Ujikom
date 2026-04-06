@@ -21,7 +21,7 @@ export default function LoanHistory({ user }) {
             {user.role === "admin" && <th>Peminjam</th>}
             <th>Judul Buku</th>
             <th>Tgl Pinjam</th>
-            <th>Tgl Kembali</th>
+            <th>bali</th>
           </tr>
         </thead>
         <tbody>
