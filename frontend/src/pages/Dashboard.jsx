@@ -11,15 +11,15 @@ export default function Dashboard() {
   const [users, setUsers] = useState([]);
   const [activeTab, setActiveTab] = useState("home");
 
-  // --- PALET WARNA FULL COLOR TIARA (TANPA PUTIH) ---
+  // --- PALET WARNA FULL COLOR TIARA ---
   const colors = {
-    bgCream: "#FFF9E6",     // Background Paling Dasar (Cream Hangat)
-    cardPink: "#FFE4F2",    // Background Kartu/Konten (Soft Pink - Pengganti Putih)
-    deepPink: "#DB2777",    // Warna Penegas/Tombol Aktif (Pink Tua)
-    skyBlue: "#60A5FA",     // Warna Aksen/Badge (Biru Muda)
-    softBlue: "#DBEAFE",    // Background Biru Muda untuk variasi
-    textDark: "#4D2C3D",    // Teks Cokelat Tua (biar nyambung sama Pink/Cream)
-    borderPink: "#F9A8D4",  // Garis tepi Pink
+    bgCream: "#FFF9E6",
+    cardPink: "#FFE4F2",
+    deepPink: "#DB2777",
+    skyBlue: "#60A5FA",
+    softBlue: "#DBEAFE",
+    textDark: "#4D2C3D",
+    borderPink: "#F9A8D4",
   };
 
   useEffect(() => {
@@ -74,17 +74,24 @@ export default function Dashboard() {
     window.location.href = "/";
   };
 
-  // Fungsi pembantu untuk memformat tanggal ke Bahasa Indonesia
+  // 1. Fungsi Format Tanggal
   const formatDate = (dateString) => {
     if (!dateString) return "-";
     const date = new Date(dateString);
     if (isNaN(date.getTime())) return "-";
-    
-    return date.toLocaleDateString('id-ID', { 
-      day: '2-digit', 
-      month: 'long', 
-      year: 'numeric' 
-    });
+    return date.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+  };
+
+  // 2. Fungsi Hitung Poin Minus Otomatis (-5 per hari)
+  const calculatePenalty = (loan) => {
+    const dateToCompare = loan.returned_at ? new Date(loan.returned_at) : new Date();
+    const deadline = new Date(loan.return_date);
+
+    if (dateToCompare <= deadline) return 0;
+
+    const diffTime = Math.abs(dateToCompare - deadline);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+    return diffDays * 5;
   };
 
   const activeLoansCount = loans.filter(l => !l.returned_at).length;
@@ -92,7 +99,7 @@ export default function Dashboard() {
   return (
     <div style={{ minHeight: "100vh", background: colors.bgCream, fontFamily: "'Poppins', sans-serif", color: colors.textDark, paddingBottom: "50px" }}>
       
-      {/* 1. HEADER */}
+      {/* HEADER */}
       <div style={{ background: colors.cardPink, padding: "20px 0", boxShadow: "0 4px 10px rgba(219, 39, 119, 0.1)", marginBottom: "30px", borderBottom: `3px solid ${colors.borderPink}` }}>
         <div style={{ maxWidth: "1200px", margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 25px" }}>
           <h1 style={{ color: colors.deepPink, margin: 0, fontSize: "26px", fontWeight: "800" }}>
@@ -112,7 +119,7 @@ export default function Dashboard() {
 
       <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "0 20px" }}>
         
-        {/* 2. NAVIGASI */}
+        {/* NAVIGASI */}
         <div style={{ marginBottom: "25px", display: "flex", gap: "12px", flexWrap: "wrap" }}>
           {[
             { id: "home", label: "🏠 Home", color: colors.deepPink },
@@ -158,12 +165,10 @@ export default function Dashboard() {
                   <h4 style={{ margin: 0, textTransform: "uppercase", fontSize: "12px" }}>Total Buku</h4>
                   <h1 style={{ fontSize: "50px", margin: "10px 0" }}>{books.length}</h1>
                 </div>
-                
                 <div style={{ background: colors.softBlue, padding: "30px", borderRadius: "25px", border: `3px solid ${colors.skyBlue}`, color: colors.skyBlue }}>
                   <h4 style={{ margin: 0, textTransform: "uppercase", fontSize: "12px" }}>Dipinjam</h4>
                   <h1 style={{ fontSize: "50px", margin: "10px 0" }}>{activeLoansCount}</h1>
                 </div>
-                
                 {user?.role === "admin" && (
                   <div style={{ background: colors.deepPink, padding: "30px", borderRadius: "25px", border: `3px solid ${colors.cardPink}`, color: "white" }}>
                     <h4 style={{ margin: 0, textTransform: "uppercase", fontSize: "12px", opacity: 0.8 }}>Anggota</h4>
@@ -177,7 +182,7 @@ export default function Dashboard() {
           {activeTab === "books" && <Books isAdmin={user?.role === "admin"} />}
           {activeTab === "users" && user?.role === "admin" && <Users />}
 
-          {/* TAB 4: RIWAYAT */}
+          {/* TAB 4: RIWAYAT DENGAN TANGGAL BERSIH & POIN MINUS */}
           {activeTab === "loans" && (
             <div>
               <h2 style={{ color: colors.deepPink, marginBottom: "20px", textAlign: "center" }}>📊 Log Aktivitas</h2>
@@ -189,40 +194,41 @@ export default function Dashboard() {
                       <th style={{ padding: "15px" }}>Peminjam</th>
                       <th style={{ padding: "15px" }}>Tgl Pinjam</th>
                       <th style={{ padding: "15px" }}>Tgl Kembali</th>
+                      <th style={{ padding: "15px" }}>Poin Minus</th>
                       <th style={{ padding: "15px" }}>Aksi</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {loans.map((loan) => (
-                      <tr key={loan.id} style={{ background: colors.bgCream, borderRadius: "15px" }}>
-                        <td style={{ padding: "15px", borderRadius: "15px 0 0 15px", fontWeight: "bold" }}>{loan.book?.judul}</td>
-                        <td style={{ padding: "15px" }}>{loan.user?.name}</td>
-                        
-                        {/* Tanggal Pinjam */}
-                        <td style={{ padding: "15px", fontSize: "13px" }}>{formatDate(loan.created_at)}</td>
-                        
-                        {/* Tanggal Kembali (Langsung Tanggal Tanpa Teks) */}
-                        <td style={{ padding: "15px", fontSize: "13px" }}>
-                          {loan.returned_at ? (
-                            <span style={{ color: colors.deepPink, fontWeight: "bold" }}>
-                              {formatDate(loan.returned_at)}
+                    {loans.map((loan) => {
+                      const penalty = calculatePenalty(loan);
+                      return (
+                        <tr key={loan.id} style={{ background: colors.bgCream, borderRadius: "15px" }}>
+                          <td style={{ padding: "15px", borderRadius: "15px 0 0 15px", fontWeight: "bold" }}>{loan.book?.judul}</td>
+                          <td style={{ padding: "15px" }}>{loan.user?.name}</td>
+                          <td style={{ padding: "15px", fontSize: "13px" }}>{formatDate(loan.created_at)}</td>
+                          <td style={{ padding: "15px", fontSize: "13px" }}>
+                            <span style={{ color: loan.returned_at ? colors.deepPink : colors.skyBlue, fontWeight: "bold" }}>
+                              {loan.returned_at ? formatDate(loan.returned_at) : formatDate(loan.return_date)}
                             </span>
-                          ) : (
-                            <span style={{ color: colors.skyBlue, fontWeight: "bold" }}>
-                              {formatDate(loan.return_date)}
-                            </span>
-                          )}
-                        </td>
-
-                        <td style={{ padding: "15px", borderRadius: "0 15px 15px 0", textAlign: "center" }}>
-                          {!loan.returned_at ? (
-                            <button onClick={() => handleReturn(loan.id)} style={{ background: colors.skyBlue, color: "white", border: "none", padding: "8px 15px", borderRadius: "10px", cursor: "pointer", fontWeight: "bold" }}>Kembalikan</button>
-                          ) : (
-                            <span style={{ color: colors.deepPink, fontWeight: "bold" }}>Selesai ✓</span>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
+                          </td>
+                          {/* KOLOM POIN MINUS */}
+                          <td style={{ padding: "15px", fontWeight: "bold" }}>
+                            {penalty > 0 ? (
+                              <span style={{ color: "#EF4444" }}>-{penalty} Point</span>
+                            ) : (
+                              <span style={{ color: "#10B981" }}>0</span>
+                            )}
+                          </td>
+                          <td style={{ padding: "15px", borderRadius: "0 15px 15px 0", textAlign: "center" }}>
+                            {!loan.returned_at ? (
+                              <button onClick={() => handleReturn(loan.id)} style={{ background: colors.skyBlue, color: "white", border: "none", padding: "8px 15px", borderRadius: "10px", cursor: "pointer", fontWeight: "bold" }}>Kembalikan</button>
+                            ) : (
+                              <span style={{ color: colors.deepPink, fontWeight: "bold" }}>Selesai ✓</span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
