@@ -104,7 +104,7 @@ export default function Dashboard() {
           {[
             { id: "home", label: "🏠 Home", color: colors.deepPink },
             { id: "books", label: "📖 Buku", color: colors.skyBlue },
-            { id: "users", label: "👥 Siswa", adminOnly: true, color: "#9333EA" },
+            { id: "users", label: "👥 Anggota", adminOnly: true, color: "#9333EA" },
             { id: "loans", label: "📋 Riwayat", color: "#F59E0B" },
           ].map((tab) => {
             if (tab.adminOnly && user?.role !== "admin") return null;
