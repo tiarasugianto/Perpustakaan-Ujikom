@@ -15,6 +15,12 @@ class Book extends Model
         'penerbit',
         'tahun',
         'stok',
-        'kategori' // <--- TAMBAHKAN INI BEB (Jangan lupa koma di atasnya)
+        'kategori',
+        'rak', 
+    ];
+
+    // --- PAKAI INI SAJA BEB, LEBIH AMAN GAK BIKIN ERROR 500 ---
+    protected $visible = [
+        'id', 'judul', 'penulis', 'penerbit', 'tahun', 'stok', 'kategori', 'rak'
     ];
 }

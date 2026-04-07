@@ -7,6 +7,7 @@ export default function Books({ isAdmin }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Semua");
 
+  // --- PALET WARNA TIARA ---
   const colors = {
     cardCream: "#FFF9E6",   
     deepPink: "#DB2777",    
@@ -32,6 +33,7 @@ export default function Books({ isAdmin }) {
     loadBooks();
   }, []);
 
+  // --- LOGIKA FILTER ---
   const filteredBooks = books.filter((book) => {
     const genreBuku = book.kategori || "Umum";
     const matchesSearch = 
@@ -45,7 +47,7 @@ export default function Books({ isAdmin }) {
     return matchesSearch && matchesCategory;
   });
 
-  // --- FUNGSI TAMBAH (FIXED) ---
+  // --- FUNGSI TAMBAH BUKU ---
   const handleAdd = async () => {
     const { value: formValues } = await Swal.fire({
       title: 'Tambah Buku Baru',
@@ -58,7 +60,8 @@ export default function Books({ isAdmin }) {
           categories.filter(c => c !== "Semua").map(c => `<option value="${c}">${c}</option>`).join('') +
         '</select>' +
         '<input id="swal-penerbit" class="swal2-input" placeholder="Penerbit">' +
-        '<input id="swal-stok" class="swal2-input" type="number" placeholder="Stok">',
+        '<input id="swal-stok" class="swal2-input" type="number" placeholder="Stok">' +
+        '<input id="swal-rak" class="swal2-input" placeholder="Posisi Rak (Misal: A-01)">',
       focusConfirm: false,
       showCancelButton: true,
       preConfirm: () => {
@@ -67,23 +70,22 @@ export default function Books({ isAdmin }) {
           penulis: document.getElementById('swal-penulis').value,
           kategori: document.getElementById('swal-kategori').value,
           penerbit: document.getElementById('swal-penerbit').value,
-          stok: document.getElementById('swal-stok').value
+          stok: document.getElementById('swal-stok').value,
+          rak: document.getElementById('swal-rak').value,
+          tahun: 2026
         }
       }
     });
 
     if (formValues && formValues.judul) {
-      createBook({ 
-        ...formValues,
-        tahun: 2026 // Tambahan tahun default
-      }).then(() => {
+      createBook(formValues).then(() => {
         Swal.fire({ title: 'Berhasil!', icon: 'success', background: colors.cardCream });
         loadBooks();
       });
     }
   };
 
-  // --- FUNGSI EDIT (FIXED & SINKRON) ---
+  // --- FUNGSI EDIT BUKU ---
   const handleEdit = async (book) => {
     const { value: formValues } = await Swal.fire({
       title: 'Edit Buku',
@@ -96,7 +98,8 @@ export default function Books({ isAdmin }) {
           categories.filter(c => c !== "Semua").map(c => `<option value="${c}" ${book.kategori === c ? 'selected' : ''}>${c}</option>`).join('') +
         `</select>` +
         `<input id="edit-penerbit" class="swal2-input" value="${book.penerbit || ''}" placeholder="Penerbit">` +
-        `<input id="edit-stok" class="swal2-input" type="number" value="${book.stok}" placeholder="Stok">`,
+        `<input id="edit-stok" class="swal2-input" type="number" value="${book.stok}" placeholder="Stok">` +
+        `<input id="edit-rak" class="swal2-input" value="${book.rak || ''}" placeholder="Posisi Rak">`,
       showCancelButton: true,
       preConfirm: () => {
         return {
@@ -104,7 +107,8 @@ export default function Books({ isAdmin }) {
           penulis: document.getElementById('edit-penulis').value,
           kategori: document.getElementById('edit-kategori').value,
           penerbit: document.getElementById('edit-penerbit').value,
-          stok: document.getElementById('edit-stok').value
+          stok: document.getElementById('edit-stok').value,
+          rak: document.getElementById('edit-rak').value
         }
       }
     });
@@ -118,6 +122,7 @@ export default function Books({ isAdmin }) {
     }
   };
 
+  // --- FUNGSI HAPUS BUKU ---
   const handleDelete = (id) => {
     Swal.fire({
       title: 'Yakin mau hapus?',
@@ -136,6 +141,7 @@ export default function Books({ isAdmin }) {
     });
   };
 
+  // --- FUNGSI PINJAM BUKU ---
   const handleBorrow = async (bookId) => {
     const today = new Date().toISOString().split("T")[0];
     const { value: returnDate } = await Swal.fire({
@@ -160,6 +166,7 @@ export default function Books({ isAdmin }) {
 
   return (
     <div>
+      {/* HEADER & PENCARIAN */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", gap: "15px", flexWrap: "wrap" }}>
         {isAdmin && (
           <button onClick={handleAdd} style={{ padding: "10px 20px", background: "#10B981", color: "white", border: "none", borderRadius: "10px", cursor: "pointer", fontWeight: "600" }}>
@@ -178,6 +185,7 @@ export default function Books({ isAdmin }) {
         </div>
       </div>
 
+      {/* FILTER KATEGORI */}
       <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", justifyContent: "center", marginBottom: "25px" }}>
         {categories.map((cat) => (
           <button
@@ -200,6 +208,7 @@ export default function Books({ isAdmin }) {
         ))}
       </div>
 
+      {/* DAFTAR BUKU */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "25px" }}>
         {filteredBooks.length > 0 ? (
           filteredBooks.map((book) => (
@@ -214,6 +223,12 @@ export default function Books({ isAdmin }) {
                 </div>
               </div>
               <p style={{ fontSize: "13px", margin: "5px 0" }}>✍️ {book.penulis}</p>
+              
+              {/* TAMPILAN LOKASI RAK */}
+              <p style={{ fontSize: "12px", color: colors.deepPink, margin: "0", fontWeight: "600" }}>
+                📍 Lokasi: {book.rak ? book.rak : "Belum Diatur"}
+              </p>
+
               <div style={{ marginTop: "auto", display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: "10px" }}>
                 <span style={{ fontSize: "12px", color: "#059669", fontWeight: "bold" }}>Stok: {book.stok}</span>
                 <div style={{ display: "flex", gap: "5px" }}>
