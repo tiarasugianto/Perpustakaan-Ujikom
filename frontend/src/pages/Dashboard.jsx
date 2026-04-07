@@ -35,8 +35,9 @@ export default function Dashboard() {
     getBooks().then(res => setBooks(res.data));
     getUsers().then(res => setUsers(res.data));
     getLoans().then((res) => {
-      // --- LOGIKA URUTAN TERBARU (SORT BY ID DESC) ---
-      const sortedData = res.data.sort((a, b) => b.id - a.id); 
+      // --- LOGIKA: URUTKAN DARI YANG PALING LAMA (A-Z / ID KECIL KE BESAR) ---
+      // Kita urutkan berdasarkan ID dari yang terkecil ke terbesar
+      const sortedData = res.data.sort((a, b) => a.id - b.id);
 
       const filtered = currentUser.role === "admin" 
         ? sortedData 
@@ -65,7 +66,6 @@ export default function Dashboard() {
     }
   };
 
-  // --- FUNGSI DOWNLOAD EXCEL DENGAN AUTO-WIDTH & SORTED DATA ---
   const downloadExcel = () => {
     const dataUntukExcel = loans.map((loan, index) => ({
       'No': index + 1,
@@ -80,15 +80,8 @@ export default function Dashboard() {
     const worksheet = XLSX.utils.json_to_sheet(dataUntukExcel);
     const workbook = XLSX.utils.book_new();
 
-    // Mengatur Lebar Kolom Otomatis agar rapi saat dibuka
     const wscols = [
-      { wch: 5 },  // No
-      { wch: 25 }, // Nama Peminjam
-      { wch: 30 }, // Judul Buku
-      { wch: 20 }, // Tanggal Pinjam
-      { wch: 20 }, // Waktu Kembali
-      { wch: 12 }, // Poin Minus
-      { wch: 10 }, // Status
+      { wch: 5 }, { wch: 25 }, { wch: 30 }, { wch: 20 }, { wch: 20 }, { wch: 12 }, { wch: 12 },
     ];
     worksheet['!cols'] = wscols;
 
@@ -97,7 +90,7 @@ export default function Dashboard() {
 
     Swal.fire({
         title: 'Berhasil!',
-        text: 'Laporan Excel terbaru sudah diunduh!',
+        text: 'Laporan 1 Bulan Peminjaman Buku Ke Excel!',
         icon: 'success',
         confirmButtonColor: colors.deepPink,
         background: colors.cardPink
@@ -165,6 +158,7 @@ export default function Dashboard() {
 
       <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "0 20px" }}>
         
+        {/* NAVIGASI */}
         <div style={{ marginBottom: "25px", display: "flex", gap: "12px", flexWrap: "wrap" }}>
           {[
             { id: "home", label: "🏠 Home", color: colors.deepPink },
@@ -187,6 +181,12 @@ export default function Dashboard() {
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "25px", marginTop: "30px" }}>
                 <div style={{ background: colors.bgCream, padding: "30px", borderRadius: "25px", border: `3px solid ${colors.deepPink}`, color: colors.deepPink }}><h4>Total Buku</h4><h1>{books.length}</h1></div>
                 <div style={{ background: colors.softBlue, padding: "30px", borderRadius: "25px", border: `3px solid ${colors.skyBlue}`, color: colors.skyBlue }}><h4>Dipinjam</h4><h1>{activeLoansCount}</h1></div>
+                {user?.role === "admin" && (
+                  <div style={{ background: colors.deepPink, padding: "30px", borderRadius: "25px", border: `3px solid ${colors.cardPink}`, color: "white" }}>
+                    <h4 style={{ margin: 0, fontSize: "12px", opacity: 0.8 }}>Anggota</h4>
+                    <h1 style={{ fontSize: "50px", margin: "10px 0" }}>{users.length}</h1>
+                  </div>
+                )}
               </div>
             </div>
           )}
