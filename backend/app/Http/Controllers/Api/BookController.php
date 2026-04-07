@@ -15,27 +15,30 @@ class BookController extends Controller
     }
 
     // simpan buku
-   public function store(Request $request) {
-    $validated = $request->validate([
-        'judul' => 'required',
-        'penulis' => 'required',
-        'penerbit' => 'required',
-        'tahun' => 'required|integer',
-        'stok' => 'required|integer',
-    ]);
-    $book = \App\Models\Book::create($validated);
-    return response()->json($book, 201);
-}
+    public function store(Request $request) {
+        $validated = $request->validate([
+            'judul' => 'required',
+            'penulis' => 'required',
+            'penerbit' => 'required',
+            'tahun' => 'required|integer',
+            'stok' => 'required|integer',
+            'kategori' => 'required', // <--- TAMBAHIN INI BIAR GAK CUEK!
+        ]);
 
-public function update(Request $request, $id) {
-    $book = \App\Models\Book::findOrFail($id);
-    $book->update($request->all());
-    return response()->json($book);
-}
+        // Sekarang kategori bakal ikut kesimpan karena sudah masuk $validated
+        $book = Book::create($validated);
+        return response()->json($book, 201);
+    }
 
-public function destroy($id) {
-    \App\Models\Book::destroy($id);
-    return response()->json(['message' => 'Buku berhasil dihapus']);
+    public function update(Request $request, $id) {
+        $book = Book::findOrFail($id);
+        // Kalau update pake $request->all() sudah bener karena dia nangkep semua
+        $book->update($request->all());
+        return response()->json($book);
+    }
 
+    public function destroy($id) {
+        Book::destroy($id);
+        return response()->json(['message' => 'Buku berhasil dihapus']);
     }
 }

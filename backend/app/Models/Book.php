@@ -14,6 +14,7 @@ class Book extends Model
         'penulis',
         'penerbit',
         'tahun',
-        'stok'
+        'stok',
+        'kategori' // <--- TAMBAHKAN INI BEB (Jangan lupa koma di atasnya)
     ];
 }
