@@ -108,7 +108,7 @@ export default function Books({ isAdmin }) {
     });
   };
 
-  const handleBorrow = async (bookId) => {
+  const handleBorrow = async (bookId, bookJudul) => {
     const today = new Date().toISOString().split("T")[0];
     const nextWeek = new Date();
     nextWeek.setDate(nextWeek.getDate() + 7);
@@ -124,7 +124,7 @@ export default function Books({ isAdmin }) {
       icon: 'question',
       showCancelButton: true,
       confirmButtonColor: colors.deepPink,
-      confirmButtonText: 'Pinjam Sekarang',
+      confirmButtonText: 'Ajukan Pinjaman',
       preConfirm: () => {
         const dateInput = document.getElementById('swal-date').value;
         if (!dateInput) {
@@ -141,9 +141,27 @@ export default function Books({ isAdmin }) {
         return_date: returnDate 
       })
       .then(() => {
-        Swal.fire({ title: 'Berhasil!', text: `Kembalikan paling lambat ${returnDate}`, icon: 'success', background: colors.cardCream });
+        // --- SIMULASI STRUK DIGITAL UNTUK SISWA ---
+        Swal.fire({
+          title: '✅ Pengajuan Berhasil!',
+          html: `
+            <div style="background: white; padding: 20px; border-radius: 15px; border: 2px solid #DB2777">
+              <p style="font-size: 14px; color: #4D2C3D;">Tunggu persetujuan Admin.</p>
+              <hr/>
+              <div style="font-family: 'Courier New', Courier, monospace; text-align: left; font-size: 12px; color: #4D2C3D;">
+                <p><b>STRUK PENGAMBILAN BUKU</b></p>
+                <p>Judul: ${bookJudul}</p>
+                <p>Kode: LIB-${Math.floor(1000 + Math.random() * 9000)}</p>
+                <p>📍 <b>Lokasi: RAK B-03 (Lt. 2)</b></p>
+              </div>
+              <p style="margin-top: 10px; font-size: 11px; color: #DB2777">*Silahkan tunjukkan kode ini ke Admin saat mengambil buku.</p>
+            </div>
+          `,
+          icon: 'success',
+          background: colors.cardCream,
+          confirmButtonColor: colors.deepPink
+        });
         loadBooks();
-        setTimeout(() => window.location.reload(), 2000);
       })
       .catch(err => {
         Swal.fire({ title: 'Gagal', text: err.response?.data?.message || "Terjadi kesalahan", icon: 'error', background: colors.cardCream });
@@ -208,7 +226,7 @@ export default function Books({ isAdmin }) {
                   ) : (
                     book.stok > 0 && (
                       <button 
-                        onClick={() => handleBorrow(book.id)} 
+                        onClick={() => handleBorrow(book.id, book.judul)} 
                         style={{ padding: "8px 20px", background: colors.deepPink, color: "white", border: "none", borderRadius: "12px", cursor: "pointer", fontWeight: "700", fontSize: "13px", boxShadow: "0 4px 0 #9D174D" }}
                       >
                         Pinjam
