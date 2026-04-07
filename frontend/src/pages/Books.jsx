@@ -7,7 +7,6 @@ export default function Books({ isAdmin }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Semua");
 
-  // --- PALET WARNA TIARA ---
   const colors = {
     cardCream: "#FFF9E6",   
     deepPink: "#DB2777",    
@@ -23,7 +22,6 @@ export default function Books({ isAdmin }) {
   const loadBooks = () => {
     getBooks()
       .then((res) => {
-        console.log("Data Berhasil Dimuat:", res.data);
         setBooks(res.data);
       })
       .catch((err) => console.error("Gagal ambil buku:", err));
@@ -33,21 +31,15 @@ export default function Books({ isAdmin }) {
     loadBooks();
   }, []);
 
-  // --- LOGIKA FILTER ---
   const filteredBooks = books.filter((book) => {
     const genreBuku = book.kategori || "Umum";
     const matchesSearch = 
       book.judul.toLowerCase().includes(searchTerm.toLowerCase()) ||
       book.penulis.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesCategory = 
-      selectedCategory === "Semua" || 
-      genreBuku.toLowerCase() === selectedCategory.toLowerCase();
-
+    const matchesCategory = selectedCategory === "Semua" || genreBuku.toLowerCase() === selectedCategory.toLowerCase();
     return matchesSearch && matchesCategory;
   });
 
-  // --- FUNGSI TAMBAH BUKU ---
   const handleAdd = async () => {
     const { value: formValues } = await Swal.fire({
       title: 'Tambah Buku Baru',
@@ -61,7 +53,7 @@ export default function Books({ isAdmin }) {
         '</select>' +
         '<input id="swal-penerbit" class="swal2-input" placeholder="Penerbit">' +
         '<input id="swal-stok" class="swal2-input" type="number" placeholder="Stok">' +
-        '<input id="swal-rak" class="swal2-input" placeholder="Posisi Rak (Misal: A-01)">',
+        '<input id="swal-rak" class="swal2-input" placeholder="Posisi Rak">',
       focusConfirm: false,
       showCancelButton: true,
       preConfirm: () => {
@@ -85,7 +77,6 @@ export default function Books({ isAdmin }) {
     }
   };
 
-  // --- FUNGSI EDIT BUKU ---
   const handleEdit = async (book) => {
     const { value: formValues } = await Swal.fire({
       title: 'Edit Buku',
@@ -122,7 +113,6 @@ export default function Books({ isAdmin }) {
     }
   };
 
-  // --- FUNGSI HAPUS BUKU ---
   const handleDelete = (id) => {
     Swal.fire({
       title: 'Yakin mau hapus?',
@@ -141,32 +131,50 @@ export default function Books({ isAdmin }) {
     });
   };
 
-  // --- FUNGSI PINJAM BUKU ---
+  // --- FIX: FUNGSI PINJAM BUKU DENGAN TANGGAL ---
   const handleBorrow = async (bookId) => {
     const today = new Date().toISOString().split("T")[0];
     const { value: returnDate } = await Swal.fire({
-      title: 'Pinjam Buku',
+      title: 'Pilih Tanggal Pengembalian',
       background: colors.cardCream,
-      html: `<input id="swal-date" type="date" class="swal2-input" min="${today}" value="${today}">`,
+      html: `
+        <p style="font-size: 14px; color: #4D2C3D">Kapan kamu akan mengembalikan buku ini?</p>
+        <input id="swal-date" type="date" class="swal2-input" min="${today}" value="${today}">
+      `,
       showCancelButton: true,
       confirmButtonColor: colors.deepPink,
+      confirmButtonText: 'Pinjam Sekarang 📚',
+      preConfirm: () => {
+        const date = document.getElementById('swal-date').value;
+        if (!date) {
+            Swal.showValidationMessage('Tolong pilih tanggalnya dulu beb!');
+        }
+        return date;
+      }
     });
 
     if (returnDate) {
+      const userData = JSON.parse(localStorage.getItem("user"));
       borrowBook({ 
-        user_id: JSON.parse(localStorage.getItem("user")).id, 
+        user_id: userData.id, 
         book_id: bookId,
-        return_date: returnDate 
+        return_date: returnDate // Kirim tanggal ke backend
       }).then(() => {
-        Swal.fire({ title: 'Berhasil!', icon: 'success', background: colors.cardCream });
+        Swal.fire({ 
+            title: 'Permintaan Terkirim!', 
+            text: 'Silahkan cek menu Riwayat untuk melihat QR Code setelah disetujui Admin.',
+            icon: 'success', 
+            background: colors.cardCream 
+        });
         loadBooks();
+      }).catch(err => {
+          Swal.fire('Gagal', 'Ada masalah pas pinjam buku', 'error');
       });
     }
   };
 
   return (
     <div>
-      {/* HEADER & PENCARIAN */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", gap: "15px", flexWrap: "wrap" }}>
         {isAdmin && (
           <button onClick={handleAdd} style={{ padding: "10px 20px", background: "#10B981", color: "white", border: "none", borderRadius: "10px", cursor: "pointer", fontWeight: "600" }}>
@@ -185,7 +193,6 @@ export default function Books({ isAdmin }) {
         </div>
       </div>
 
-      {/* FILTER KATEGORI */}
       <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", justifyContent: "center", marginBottom: "25px" }}>
         {categories.map((cat) => (
           <button
@@ -199,8 +206,7 @@ export default function Books({ isAdmin }) {
               color: selectedCategory === cat ? "white" : colors.textDark,
               cursor: "pointer",
               fontWeight: "600",
-              fontSize: "13px",
-              transition: "0.2s"
+              fontSize: "13px"
             }}
           >
             {cat}
@@ -208,48 +214,34 @@ export default function Books({ isAdmin }) {
         ))}
       </div>
 
-      {/* DAFTAR BUKU */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "25px" }}>
-        {filteredBooks.length > 0 ? (
-          filteredBooks.map((book) => (
-            <div key={book.id} style={{ background: colors.cardCream, borderRadius: "20px", padding: "25px", border: `2px solid ${colors.softPink}`, display: "flex", flexDirection: "column", gap: "10px", boxShadow: "5px 5px 0px rgba(249, 168, 212, 0.2)" }}>
-              <div style={{ display: "flex", gap: "10px" }}>
-                <span style={{ fontSize: "30px" }}>📕</span>
-                <div>
-                  <h3 style={{ margin: 0, fontSize: "16px", color: colors.textDark }}>{book.judul}</h3>
-                  <span style={{ fontSize: "11px", background: colors.softPink, color: colors.deepPink, padding: "2px 8px", borderRadius: "8px", fontWeight: "bold" }}>
-                    {book.kategori || "Umum"}
-                  </span>
-                </div>
-              </div>
-              <p style={{ fontSize: "13px", margin: "5px 0" }}>✍️ {book.penulis}</p>
-              
-              {/* TAMPILAN LOKASI RAK */}
-              <p style={{ fontSize: "12px", color: colors.deepPink, margin: "0", fontWeight: "600" }}>
-                📍 Lokasi: {book.rak ? book.rak : "Belum Diatur"}
-              </p>
-
-              <div style={{ marginTop: "auto", display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: "10px" }}>
-                <span style={{ fontSize: "12px", color: "#059669", fontWeight: "bold" }}>Stok: {book.stok}</span>
-                <div style={{ display: "flex", gap: "5px" }}>
-                  {isAdmin ? (
-                    <>
-                      <button onClick={() => handleEdit(book)} style={{ background: "#3B82F6", color: "white", border: "none", borderRadius: "8px", padding: "5px 8px", cursor: "pointer" }}>✏️</button>
-                      <button onClick={() => handleDelete(book.id)} style={{ background: "#EF4444", color: "white", border: "none", borderRadius: "8px", padding: "5px 8px", cursor: "pointer" }}>🗑️</button>
-                    </>
-                  ) : (
-                    book.stok > 0 && <button onClick={() => handleBorrow(book.id)} style={{ padding: "8px 15px", background: colors.deepPink, color: "white", border: "none", borderRadius: "10px", fontWeight: "bold", fontSize: "12px", cursor: "pointer" }}>Pinjam</button>
-                  )}
-                </div>
+        {filteredBooks.map((book) => (
+          <div key={book.id} style={{ background: colors.cardCream, borderRadius: "20px", padding: "25px", border: `2px solid ${colors.softPink}`, display: "flex", flexDirection: "column", gap: "10px" }}>
+            <div style={{ display: "flex", gap: "10px" }}>
+              <span style={{ fontSize: "30px" }}>📕</span>
+              <div>
+                <h3 style={{ margin: 0, fontSize: "16px", color: colors.textDark }}>{book.judul}</h3>
+                <span style={{ fontSize: "11px", background: colors.softPink, color: colors.deepPink, padding: "2px 8px", borderRadius: "8px", fontWeight: "bold" }}>{book.kategori || "Umum"}</span>
               </div>
             </div>
-          ))
-        ) : (
-          <div style={{ gridColumn: "1/-1", textAlign: "center", padding: "40px" }}>
-             <p style={{ opacity: 0.5, marginBottom: "10px" }}>Yah, kategori "{selectedCategory}" kosong. 🎀</p>
-             <button onClick={() => setSelectedCategory("Semua")} style={{ color: colors.deepPink, background: "none", border: "none", textDecoration: "underline", cursor: "pointer" }}>Lihat Semua Buku</button>
+            <p style={{ fontSize: "13px", margin: "5px 0" }}>✍️ {book.penulis}</p>
+            <p style={{ fontSize: "12px", color: colors.deepPink, margin: "0", fontWeight: "600" }}>📍 Lokasi: {book.rak || "Belum Diatur"}</p>
+
+            <div style={{ marginTop: "auto", display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: "10px" }}>
+              <span style={{ fontSize: "12px", color: "#059669", fontWeight: "bold" }}>Stok: {book.stok}</span>
+              <div style={{ display: "flex", gap: "5px" }}>
+                {isAdmin ? (
+                  <>
+                    <button onClick={() => handleEdit(book)} style={{ background: "#3B82F6", color: "white", border: "none", borderRadius: "8px", padding: "5px 8px", cursor: "pointer" }}>✏️</button>
+                    <button onClick={() => handleDelete(book.id)} style={{ background: "#EF4444", color: "white", border: "none", borderRadius: "8px", padding: "5px 8px", cursor: "pointer" }}>🗑️</button>
+                  </>
+                ) : (
+                  book.stok > 0 && <button onClick={() => handleBorrow(book.id)} style={{ padding: "8px 15px", background: colors.deepPink, color: "white", border: "none", borderRadius: "10px", fontWeight: "bold", fontSize: "12px", cursor: "pointer" }}>Pinjam</button>
+                )}
+              </div>
+            </div>
           </div>
-        )}
+        ))}
       </div>
     </div>
   );

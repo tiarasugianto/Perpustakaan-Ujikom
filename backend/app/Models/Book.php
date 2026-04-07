@@ -10,15 +10,8 @@ class Book extends Model
     use HasFactory;
 
     protected $fillable = [
-        'judul',
-        'penulis',
-        'penerbit',
-        'tahun',
-        'stok',
-        'kategori',
-        'rak', 
-    ];
-
+    'judul', 'penulis', 'kategori', 'penerbit', 'stok', 'tahun', 'Rak' // Harus R besar!
+];
     // --- PAKAI INI SAJA BEB, LEBIH AMAN GAK BIKIN ERROR 500 ---
     protected $visible = [
         'id', 'judul', 'penulis', 'penerbit', 'tahun', 'stok', 'kategori', 'rak'

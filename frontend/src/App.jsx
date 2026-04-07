@@ -1,20 +1,33 @@
+import Scanner from "./pages/Scanner";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
-import { useState, useEffect } from "react"; // Tambahkan useEffect
+import AdminLoans from "./pages/AdminLoans"; // <--- CEK NAMA FILE INI BEB!
+import { useState, useEffect } from "react";
 
 function App() {
   const [auth, setAuth] = useState(localStorage.getItem("user") !== null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
-  // Fungsi ini memastikan jika ada perubahan status, App.jsx tahu
   useEffect(() => {
-    const user = localStorage.getItem("user");
-    if (user) {
-      setAuth(true);
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      try {
+        const user = JSON.parse(userData);
+        setAuth(true);
+        // COBA LOG INI DI CONSOLE (F12) BIAR KITA TAU ROLE KAMU APA
+        console.log("Role User Login:", user.role); 
+        
+        // Pakai .toLowerCase() biar kalau di database 'Admin' atau 'admin' tetep jalan
+        setIsAdmin(user && user.role.toLowerCase() === 'admin');
+      } catch (e) {
+        setAuth(false);
+      }
     } else {
       setAuth(false);
+      setIsAdmin(false);
     }
-  }, []);
+  }, [auth]);
 
   return (
     <Routes>
@@ -32,8 +45,18 @@ function App() {
         path="/dashboard" 
         element={auth ? <Dashboard /> : <Navigate to="/login" />} 
       />
+
+      {/* ROUTE KHUSUS ADMIN */}
+      <Route 
+        path="/admin/loans" 
+        element={auth && isAdmin ? <AdminLoans /> : <Navigate to="/dashboard" />} 
+      />
       
-      {/* Tambahkan route cadangan jika path tidak ditemukan */}
+      <Route 
+  path="/admin/scan" 
+  element={auth && isAdmin ? <Scanner /> : <Navigate to="/dashboard" />} 
+/>
+
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );
