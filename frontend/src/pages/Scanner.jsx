@@ -23,7 +23,9 @@ export default function Scanner() {
       scanner.clear();
       setScanResult(result);
       fetchLoanInfo(result);
-    }, (err) => { /* scanning... */ });
+    }, (err) => { 
+      // Scanning...
+    });
 
     return () => scanner.clear();
   }, []);
@@ -31,13 +33,12 @@ export default function Scanner() {
   const fetchLoanInfo = (id) => {
     axios.get(`http://localhost:8000/api/loans/${id}`)
       .then(res => {
-        console.log("Data dari Laravel:", res.data); // Cek di F12 (Console) buat liat datanya
         setLoanData(res.data);
       })
       .catch(() => {
         Swal.fire({
           title: "Gagal",
-          text: "Data tidak ditemukan atau server error!",
+          text: "Data tidak ditemukan!",
           icon: "error",
           confirmButtonColor: colors.deepPink
         }).then(() => window.location.reload());
@@ -45,14 +46,20 @@ export default function Scanner() {
   };
 
   const handleReturn = () => {
+    if (!loanData) return;
     axios.put(`http://localhost:8000/api/loans/${loanData.id}`)
       .then(() => {
         Swal.fire({
           title: "Berhasil!",
-          text: "Buku telah dikembalikan.",
+          text: "Buku telah dikembalikan / diambil.",
           icon: "success",
           confirmButtonColor: colors.deepPink
-        }).then(() => window.location.reload());
+        }).then(() => {
+          window.location.reload();
+        });
+      })
+      .catch(() => {
+        Swal.fire("Gagal", "Terjadi kesalahan saat memproses data.", "error");
       });
   };
 
@@ -66,17 +73,9 @@ export default function Scanner() {
         <div style={{ marginTop: "20px", padding: "30px", border: `2px dashed ${colors.borderPink}`, borderRadius: "20px", background: "white", maxWidth: "500px", margin: "20px auto", boxShadow: "0 10px 20px rgba(0,0,0,0.05)" }}>
           <h3 style={{ color: "#059669", marginBottom: "20px" }}>✅ Data Ditemukan!</h3>
           
-          <div style={{ textAlign: "left", fontSize: "15px", color: colors.textDark, lineHeight: "2" }}>
+          <div style={{ textAlign: "left", fontSize: "16px", color: colors.textDark, lineHeight: "2.5" }}>
             <p>👤 <b>Peminjam:</b> {loanData.user?.name || '-'}</p>
             <p>📖 <b>Buku:</b> {loanData.book?.judul || '-'}</p>
-            
-            {/* Bagian Rak yang kita perbaiki */}
-            <p>
-  📍 <b>Lokasi Rak:</b> <span style={{ color: colors.deepPink, fontWeight: "bold" }}>
-    {/* Perhatikan 'R' besar di bawah ini! */}
-    {loanData.book?.Rak ? loanData.book.Rak : "KOLOM 'Rak' MASIH KOSONG"}
-  </span>
-</p>
           </div>
           
           <button 
